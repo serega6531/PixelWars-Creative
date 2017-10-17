@@ -1,0 +1,33 @@
+{
+  "properties": [
+    {
+      "name": "vk.redirect-uri",
+      "type": "java.lang.String",
+      "description": "URI to redirect with code or token."
+    },
+    {
+      "name": "vk.display",
+      "type": "java.lang.String",
+      "description": "Authorization display type. Could be page/popup/mobile."
+    },
+    {
+      "name": "vk.scope",
+      "type": "java.lang.String",
+      "description": "Mask of permissions application requires."
+    },
+    {
+      "name": "vk.api-version",
+      "type": "java.lang.String",
+      "description": "VK API version, latest on 17/10/17 is 5/68."
+    },
+    {
+      "name": "vk.client-secret",
+      "type": "java.lang.String",
+      "description": "Your application client secret."
+    },
+    {
+      "name": "vk.client-id",
+      "type": "java.lang.String",
+      "description": "Your application client id."
+    }
+  ] }
