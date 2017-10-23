@@ -1,9 +1,20 @@
 package ru.serega6531.pixelwars.creative.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import ru.serega6531.pixelwars.creative.model.VKTokenInfo;
+
+import javax.servlet.http.HttpSession;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 @Controller
 public class AuthController {
@@ -28,37 +39,47 @@ public class AuthController {
 
     @GetMapping("/auth")
     public String authStart(){
-        return l(String.format("redirect:https://oauth.vk.com/authorize?client_id=%d&display=%s&" +
+        return String.format("redirect:https://oauth.vk.com/authorize?client_id=%d&display=%s&" +
                 "redirect_uri=%s&scope=%d&response_type=code&v=%s",
-                clientId, display, redirectUri, scope, apiVersion));
+                clientId, display, redirectUri, scope, apiVersion);
     }
 
     @GetMapping(value = "/auth/redirect", params = {"code"})
-    public String getCode(@RequestParam String code){
-        /*try {
-            String url = String.format("https://oauth.vk.com/access_token?client_id=%d&client_secret=%s&" +
-                    "redirect_uri=%s&code=%s", clientId, clientSecret, redirectUri, code);
+    @ResponseBody
+    public String getCode(@RequestParam String code, HttpSession session){
+        try {
+            String urlStr = String.format("https://oauth.vk.com/access_token?client_id=%d&client_secret=%s&" +
+                "redirect_uri=%s&code=%s", clientId, clientSecret, redirectUri, code);
 
-            URL obj = new URL(url);
-            HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
+            URL url = new URL(urlStr);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
-            connection.disconnect();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+
+            ObjectMapper jsonMapper = new ObjectMapper();
+            String tokenJson = reader.readLine();
+            try {
+                VKTokenInfo tokenInfo = jsonMapper.readValue(tokenJson, VKTokenInfo.class);
+                session.setAttribute("vk_token", tokenInfo.getToken());
+                session.setMaxInactiveInterval(tokenInfo.getExpires());
+                return tokenInfo.toString();
+            } catch (JsonProcessingException e){
+                System.out.println("Error parsing token json: " + tokenJson);
+                e.printStackTrace();
+            }
         } catch (IOException e) {
             e.printStackTrace();
-        }*/
+        }
 
-        return l(String.format("redirect:https://oauth.vk.com/access_token?client_id=%d&client_secret=%s&" +
-                "redirect_uri=%s&code=%s", clientId, clientSecret, redirectUri, code));
+        return "Cannot reach ouath";
+
+        //return l(String.format("redirect:https://oauth.vk.com/access_token?client_id=%d&client_secret=%s&" +
+        //        "redirect_uri=%s&code=%s", clientId, clientSecret, URLEncoder.encode(redirectUri), code));
     }
 
     @GetMapping(value = "/auth/redirect", params = {"error", "error_description"})
     public void codeError(@RequestParam String error, @RequestParam("error_description") String errorDescription){
         System.out.println("error = [" + error + "], errorDescription = [" + errorDescription + "]");
-    }
-
-    private String l(String s){
-        System.out.println(s);
-        return s;
     }
 
 }
