@@ -5,7 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import java.io.Serializable;
 
-@Table(name = "pixels")
+@Table(name = "canvas")
 @Entity
 public class Pixel implements Serializable {
 

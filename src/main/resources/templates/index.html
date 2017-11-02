@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+
+<!--suppress HtmlUnknownTarget -->
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>PixelWars</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <script
+            src="https://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
+    <script src="js/app.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+
+<body>
+
+<div id="error-box"></div>
+
+<div th:switch="${session == null || session.vk_id == null}">
+    <form th:case="${true}" th:action="@{/auth/}">
+        <input type="submit" value="Войти"/>
+    </form>
+
+    <form th:case="${false}" th:action="@{/auth/logout}">
+        <span>Вы залогинены под id [[${session.vk_id}]]</span>
+        <input type="submit" value="Выйти"/>
+    </form>
+</div>
+
+</body>
+
+</html>

@@ -12,7 +12,7 @@
     },
     {
       "name": "vk.scope",
-      "type": "java.lang.String",
+      "type": "java.lang.Integer",
       "description": "Mask of permissions application requires."
     },
     {
@@ -27,7 +27,17 @@
     },
     {
       "name": "vk.client-id",
-      "type": "java.lang.String",
+      "type": "java.lang.Integer",
       "description": "Your application client id."
+    },
+    {
+      "name": "drawing.canvas-size.x",
+      "type": "java.lang.Integer",
+      "description": "Horizontal size of drawing canvas."
+    },
+    {
+      "name": "drawing.canvas-size.y",
+      "type": "java.lang.Integer",
+      "description": "Vertical size of drawing canvas."
     }
   ] }
