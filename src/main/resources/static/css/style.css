@@ -1,8 +1,63 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
 #error-box {
     border: 1px solid;
-    margin: 10px 0;
-    padding:15px 10px 15px 50px;
+    margin: 0;
+    padding: 5px 3px 5px 8px;
     color: #D8000C;
     background: #FFBABA no-repeat 10px center;
     display: none;
+}
+
+#header {
+    overflow: hidden;
+    background-color: rgb(255, 246, 209);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 42px;
+}
+
+#header-content {
+    position: relative;
+    margin: auto;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 95%;
+    height: 50%;
+}
+
+#header-auth {
+    float: right;
+}
+
+#content {
+    margin-top: 42px;
+    height: 100%;
+}
+
+#slider-box {
+    position: absolute;
+    bottom: 5%;
+    right: 5%;
+    opacity: 0.7;
+    border: 1px solid gray;
+}
+
+#slider-box:hover {
+    opacity: 1;
+}
+
+#slider-box span {
+    display: inline-block;
+    margin: 3px;
+    vertical-align: 5px;
+}
+
+#zoom-slider {
 }

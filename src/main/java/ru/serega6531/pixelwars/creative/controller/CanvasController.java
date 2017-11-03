@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.serega6531.pixelwars.creative.DrawingCanvas;
 import ru.serega6531.pixelwars.creative.model.Pixel;
 import ru.serega6531.pixelwars.creative.model.PixelPosition;
-import ru.serega6531.pixelwars.creative.model.PixelUpdateResponse;
+import ru.serega6531.pixelwars.creative.model.RestResponse;
 import ru.serega6531.pixelwars.creative.repository.CanvasRepository;
 
 import javax.servlet.http.HttpSession;
@@ -28,13 +28,13 @@ public class CanvasController {
     }
 
     @PostMapping("/canvas/updatePixel")
-    public PixelUpdateResponse updatePixel(@RequestBody Pixel pixel, HttpSession session){
+    public RestResponse updatePixel(@RequestBody Pixel pixel, HttpSession session){
         if(session.isNew()){
-            return PixelUpdateResponse.UNAUTHORIZED;
+            return RestResponse.UNAUTHORIZED;
         }
 
         if(((long) session.getAttribute("expires_at")) >= System.currentTimeMillis() / 1000L){
-            return PixelUpdateResponse.SESSION_OUTDATED;
+            return RestResponse.SESSION_OUTDATED;
         }
 
         return canvas.updatePixel(pixel);

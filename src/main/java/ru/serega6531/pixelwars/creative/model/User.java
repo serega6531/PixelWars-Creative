@@ -13,6 +13,8 @@ public class User implements Serializable {
     @Id
     private int vkId;
     private Date lastDraw;
+    private boolean isAdmin;
+    private boolean isBanned;
 
     protected User(){}
 
@@ -30,5 +32,21 @@ public class User implements Serializable {
 
     public void setLastDraw(Date lastDraw) {
         this.lastDraw = lastDraw;
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
+    }
+
+    public boolean isBanned() {
+        return isBanned;
+    }
+
+    public void setBanned(boolean banned) {
+        isBanned = banned;
     }
 }
