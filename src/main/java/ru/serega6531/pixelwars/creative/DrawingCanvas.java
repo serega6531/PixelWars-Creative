@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.serega6531.pixelwars.creative.model.Pixel;
 import ru.serega6531.pixelwars.creative.model.PixelPosition;
-import ru.serega6531.pixelwars.creative.model.RestResponse;
+import ru.serega6531.pixelwars.creative.model.response.RestResponse;
 import ru.serega6531.pixelwars.creative.repository.CanvasRepository;
 
 @Component
@@ -35,4 +35,11 @@ public class DrawingCanvas {
         return RestResponse.SUCCESS;
     }
 
+    public int getSizeX() {
+        return canvasSizeX;
+    }
+
+    public int getSizeY() {
+        return canvasSizeY;
+    }
 }

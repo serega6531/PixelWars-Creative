@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.serega6531.pixelwars.creative.model.RestResponse;
 import ru.serega6531.pixelwars.creative.model.User;
+import ru.serega6531.pixelwars.creative.model.response.RestResponse;
 import ru.serega6531.pixelwars.creative.repository.UserRepository;
 
 import javax.servlet.http.HttpSession;

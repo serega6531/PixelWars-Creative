@@ -1,3 +1,6 @@
+"use strict";
+var app = {};
+
 $(document).ready(function () {
     var queryDict = {};
     decodeURI(location.search).substr(1).split("&").forEach(function (item) {
@@ -20,7 +23,7 @@ $(document).ready(function () {
 
     var slider = document.getElementById('zoom-slider');
     slider.oninput = function () {
-        console.log(this.value); //TODO
+        console.log(this.value); //TODO resize canvas
     };
 
     var canvas = document.getElementById('pixelwars-canvas');
@@ -41,17 +44,79 @@ $(document).ready(function () {
     var content = document.getElementById('content');
     updateCanvasSize(canvas, content);
 
-    ctx.beginPath();
-    ctx.arc(80, 100, 56, 3/4 * Math.PI, 1/4 * Math.PI, true);
-    ctx.fill();
-    ctx.moveTo(40, 140);
-    ctx.lineTo(20, 40);
-    ctx.lineTo(60, 100);
-    ctx.lineTo(80, 20);
-    ctx.lineTo(100, 100);
-    ctx.lineTo(140, 40);
-    ctx.lineTo(120, 140);
-    ctx.stroke();
+    var img = new Image();
+    img.onload = function () {
+        ctx.drawImage(img, 0, 0);
+    };
+    img.src = "https://pp.userapi.com/c635104/v635104989/23d24/utoKLhwl-eA.jpg";
+
+    var $canvas = $(canvas);
+    var offset = $canvas.offset();
+
+    app.canvasOffsetX = offset.left;
+    app.canvasOffsetY = offset.top;
+    app.canvasWidth = canvas.width;
+    app.canvasHeight = canvas.height;
+
+    app.isDragging = false;
+
+    function handleMouseDown() {
+        app.isDragging = true;
+    }
+
+    function handleMouseUp() {
+        app.isDragging = false;
+    }
+
+    function handleMouseOut() {
+        app.isDragging = false;
+    }
+
+    function handleMouseMove(e) {
+        var realX = parseInt(e.clientX - app.canvasOffsetX);
+        var realY = parseInt(e.clientY - app.canvasOffsetY);
+
+        if (app.isDragging) {
+            var offsetX = realX - (app.prevX || realX); // >0 = движение вправо
+            var offsetY = realY - (app.prevY || realY); // >0 = движение вниз
+
+            console.log("x=" + offsetX + " y=" + offsetY);
+
+            ctx.clearRect(0, 0, app.canvasWidth, app.canvasHeight);
+            ctx.drawImage(img, realX - 128 / 2, realY - 120 / 2, 128, 120);
+        }
+
+        app.prevX = realX;
+        app.prevY = realY;
+    }
+
+    $canvas.mousedown(function (e) {
+        handleMouseDown(e);
+    });
+    $canvas.mousemove(function (e) {
+        handleMouseMove(e);
+    });
+    $canvas.mouseup(function (e) {
+        handleMouseUp(e);
+    });
+    $canvas.mouseout(function (e) {
+        handleMouseOut(e);
+    });
+
+    setInterval(function () {
+        // noinspection JSUnusedGlobalSymbols
+        $.ajax({
+            url: "/canvas/getAllPixels",
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                console.log(data);
+            },
+            error: function (error) {
+                console.error(error);
+            }
+        });
+    }, 1000);
 });
 
 function updateCanvasSize(canvas, content) {
@@ -64,10 +129,12 @@ function onWheel(e) {
 
     var delta = e.deltaY || e.detail || e.wheelDelta;
 
-    var slider = document.getElementById('zoom-slider')
-    if(delta < 0){  // прокрутка вверх
-        slider.value = Math.max(+slider.value - 5, 1);
-    } else {  //прокрутка вниз
+    var slider = document.getElementById('zoom-slider');
+    if (delta < 0) {  // прокрутка вверх
         slider.value = Math.min(+slider.value + 5, 100);
+    } else {  //прокрутка вниз
+        slider.value = Math.max(+slider.value - 5, 1);
     }
+
+    //TODO resize canvas
 }

@@ -1,4 +1,4 @@
-package ru.serega6531.pixelwars.creative.model;
+package ru.serega6531.pixelwars.creative.model.response;
 
 public class RestResponse {
 

@@ -7,13 +7,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import ru.serega6531.pixelwars.creative.DrawingCanvas;
 import ru.serega6531.pixelwars.creative.model.Pixel;
-import ru.serega6531.pixelwars.creative.model.PixelPosition;
-import ru.serega6531.pixelwars.creative.model.RestResponse;
+import ru.serega6531.pixelwars.creative.model.response.AllPixelsResponse;
+import ru.serega6531.pixelwars.creative.model.response.RestResponse;
 import ru.serega6531.pixelwars.creative.repository.CanvasRepository;
 
 import javax.servlet.http.HttpSession;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 public class CanvasController {
@@ -41,8 +39,8 @@ public class CanvasController {
     }
 
     @GetMapping("/canvas/getAllPixels")
-    public Map<PixelPosition, Integer> getAllPixels(){
-        return repository.findAll().stream().collect(Collectors.toMap(Pixel::getPosition, Pixel::getColor));
+    public AllPixelsResponse getAllPixels(){
+        return new AllPixelsResponse(canvas.getSizeX(), canvas.getSizeY(), repository.findAll());
     }
 
 }
