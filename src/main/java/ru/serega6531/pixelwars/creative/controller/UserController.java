@@ -21,9 +21,17 @@ public class UserController {
         this.repository = repository;
     }
 
+    public void createUser(User user){
+        repository.save(user);
+    }
+
     @GetMapping("/user/get/{id}")
     public User getUser(@PathVariable int id){
         return repository.findOne(id);
+    }
+
+    public User getUser(HttpSession session){
+        return getUser((Integer) session.getAttribute("vk_id"));
     }
 
     @PostMapping("/user/ban/{id}")

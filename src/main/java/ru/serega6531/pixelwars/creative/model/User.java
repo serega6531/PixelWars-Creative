@@ -16,6 +16,13 @@ public class User implements Serializable {
     private boolean isAdmin;
     private boolean isBanned;
 
+    public User(int vkId) {
+        this.vkId = vkId;
+        this.lastDraw = new Date(0);
+        this.isAdmin = false;
+        this.isBanned = false;
+    }
+
     protected User(){}
 
     public int getVkId() {

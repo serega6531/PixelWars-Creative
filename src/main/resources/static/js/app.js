@@ -103,10 +103,22 @@ $(document).ready(function () {
         handleMouseOut(e);
     });
 
+    $.ajax({
+        url: "/canvas/getAllPixels",
+        type: "GET",
+        dataType: "json",
+        success: function (data) {
+            console.log(data);
+        },
+        error: function (error) {
+            console.error(error);
+        }
+    });
+
     setInterval(function () {
         // noinspection JSUnusedGlobalSymbols
         $.ajax({
-            url: "/canvas/getAllPixels",
+            url: "/canvas/getUpdates",
             type: "GET",
             dataType: "json",
             success: function (data) {
@@ -137,4 +149,21 @@ function onWheel(e) {
     }
 
     //TODO resize canvas
+}
+
+function updatePixel(x, y, color) {
+    var pixel = {position: {x: x, y: y}, color: color}
+
+    $.ajax({
+        url: "/canvas/updatePixel",
+        type: "POST",
+        data: JSON.stringify(pixel),
+        contentType: "application/json",
+        success: function (data) {
+            console.log(data);
+        },
+        error: function (error) {
+            console.error(error);
+        }
+    });
 }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import ru.serega6531.pixelwars.creative.model.User;
 import ru.serega6531.pixelwars.creative.model.VKError;
 import ru.serega6531.pixelwars.creative.model.VKTokenInfo;
 
@@ -40,8 +41,14 @@ public class AuthController {
     @Value("${vk.scope}")
     int scope;
 
+    private final Logger logger;
+    private final UserController userController;
+
     @Autowired
-    private Logger logger;
+    public AuthController(Logger logger, UserController userController) {
+        this.logger = logger;
+        this.userController = userController;
+    }
 
     @GetMapping("/auth")
     public String authStart(){
@@ -67,6 +74,17 @@ public class AuthController {
             if(tokenJson.contains("token")) {
                 try {
                     VKTokenInfo tokenInfo = jsonMapper.readValue(tokenJson, VKTokenInfo.class);
+
+                    User user = userController.getUser(tokenInfo.getUserId());
+                    if(user != null){
+                        if(user.isBanned()) {
+                            return "redirect:/?error=Ошибка входа&error_description=Вы были забанены администратором";
+                        }
+                    } else {
+                        user = new User(tokenInfo.getUserId());
+                        userController.createUser(user);
+                    }
+
                     session.setAttribute("vk_id", tokenInfo.getUserId());
                     session.setAttribute("vk_token", tokenInfo.getToken());
                     session.setAttribute("expires_at", System.currentTimeMillis() / 1000L + tokenInfo.getExpires());
