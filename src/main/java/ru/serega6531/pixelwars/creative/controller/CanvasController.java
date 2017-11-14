@@ -38,9 +38,9 @@ public class CanvasController {
             return RestResponse.UNAUTHORIZED;
         }
 
-        if(System.currentTimeMillis() / 1000L >= ((long) session.getAttribute("expires_at"))){
+        /*if(System.currentTimeMillis() / 1000L >= ((long) session.getAttribute("expires_at"))){
             return RestResponse.SESSION_OUTDATED;
-        }
+        }*/
 
         User user = userController.getUser(session);
         if(user.isBanned()){

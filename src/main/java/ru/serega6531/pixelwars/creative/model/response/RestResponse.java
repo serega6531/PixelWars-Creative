@@ -8,7 +8,7 @@ public class RestResponse {
     //BASIC RESPONSES
     public static final RestResponse SUCCESS = new RestResponse(true, "success");
     public static final RestResponse UNAUTHORIZED = new RestResponse(false, "unauthorized");
-    public static final RestResponse SESSION_OUTDATED = new RestResponse(false, "session_outdated");
+    //public static final RestResponse SESSION_OUTDATED = new RestResponse(false, "session_outdated");
     public static final RestResponse INSUFFICIENT_PRIVILEGES = new RestResponse(false, "insufficient_privileges");
     public static final RestResponse BANNED = new RestResponse(false, "banned");
 

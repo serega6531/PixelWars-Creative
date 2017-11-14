@@ -1,9 +1,8 @@
-package ru.serega6531.pixelwars.creative.model;
+package ru.serega6531.pixelwars.creative.model.vk;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class VKTokenInfo {
-
 
     private String token;
     private int expires;

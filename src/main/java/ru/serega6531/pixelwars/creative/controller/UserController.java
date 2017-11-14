@@ -40,10 +40,10 @@ public class UserController {
             return RestResponse.UNAUTHORIZED;
         }
 
-        if(((long) session.getAttribute("expires_at")) >= System.currentTimeMillis() / 1000L){
+        /*if(((long) session.getAttribute("expires_at")) >= System.currentTimeMillis() / 1000L){
             session.invalidate();
             return RestResponse.SESSION_OUTDATED;
-        }
+        }*/
 
         User admin = getUser((Integer) session.getAttribute("vk_id"));
         if(!admin.isAdmin()){
@@ -71,10 +71,10 @@ public class UserController {
             return RestResponse.UNAUTHORIZED;
         }
 
-        if(((long) session.getAttribute("expires_at")) >= System.currentTimeMillis() / 1000L){
+        /*if(((long) session.getAttribute("expires_at")) >= System.currentTimeMillis() / 1000L){
             session.invalidate();
             return RestResponse.SESSION_OUTDATED;
-        }
+        }*/
 
         User admin = getUser((Integer) session.getAttribute("vk_id"));
         if(!admin.isAdmin()){
