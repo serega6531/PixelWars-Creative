@@ -1,7 +1,6 @@
 package ru.serega6531.pixelwars.creative.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import ru.serega6531.pixelwars.creative.model.User;
 import ru.serega6531.pixelwars.creative.model.vk.VKError;
 import ru.serega6531.pixelwars.creative.model.vk.VKTokenInfo;
-import ru.serega6531.pixelwars.creative.model.vk.VKUser;
 
 import javax.servlet.http.HttpSession;
 import java.io.BufferedReader;
@@ -91,10 +89,7 @@ public class AuthController {
 
                     session.setAttribute("vk_id", userId);
                     session.setAttribute("vk_token", token);
-                    //session.setAttribute("expires_at", System.currentTimeMillis() / 1000L + tokenInfo.getExpires());
                     session.setMaxInactiveInterval(60 * 60 * 24 * 7); // 7 дней
-
-                    new Thread(() -> getUserFullName(userId, token, session)).start();
 
                     return "redirect:/";
                 } catch (JsonProcessingException e) {
@@ -128,29 +123,6 @@ public class AuthController {
     @GetMapping(value = "/auth/redirect", params = {"error", "error_description"})
     public String codeError(@RequestParam String error, @RequestParam("error_description") String errorDescription) {
         return String.format("redirect:/auth/redirect?error=%s&error_description=%s", error, errorDescription);
-    }
-
-    private void getUserFullName(int id, String token, HttpSession session){
-        String urlStr = String.format("https://api.vk.com/method/users.get?user_ids=%s&access_token=%s&v=%s",
-                id, token, apiVersion);
-
-        try {
-            URL url = new URL(urlStr);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-
-            ObjectMapper jsonMapper = new ObjectMapper();
-            JsonNode root = jsonMapper.readTree(reader);
-            JsonNode userNode = root.get("response").get(0);
-            VKUser user = jsonMapper.treeToValue(userNode, VKUser.class);
-
-            session.setAttribute("first_name", user.getFirstName());
-            session.setAttribute("last_name", user.getLastName());
-            connection.disconnect();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
 }

@@ -27,7 +27,7 @@
             </form>
 
             <form th:case="${false}" th:action="@{/auth/logout}">
-                <span>Вы залогинены под id [[${session.vk_id}]]</span>
+                <span>Вы залогинены <span id="login-data">под id [[${session.vk_id}]]</span></span>
                 <input type="submit" value="Выйти"/>
             </form>
         </div>

@@ -14,6 +14,27 @@ $(document).ready(function () {
         error.show();
     }
 
+    var login = $("#login-data");
+    if(login){
+        setTimeout(function () {
+            // noinspection JSUnusedGlobalSymbols
+            // noinspection SpellCheckingInspection
+            $.ajax({
+                url: "/user/fullname",
+                type: "GET",
+                dataType: "json",
+                success: function (data) {
+                    /** @namespace data.last_name */
+                    /** @namespace data.first_name */
+                    login.html('как ' + data.first_name + ' ' + data.last_name);
+                },
+                error: function (error) {
+                    console.error(error);
+                }
+            });
+        }, 300);
+    }
+
     document.body.onresize = function () {
         var canvas = document.getElementById('pixelwars-canvas');
         var content = document.getElementById('content');
