@@ -1,0 +1,102 @@
+@keyframes loader-box {
+    0% {
+        transform: scale(1)
+    }
+    20% {
+        transform: scale(1)
+    }
+    50% {
+        transform: scale(0.3)
+    }
+    80% {
+        transform: scale(1)
+    }
+    100% {
+        transform: scale(1)
+    }
+}
+
+@-webkit-keyframes loader-box {
+    0% {
+        transform: scale(1)
+    }
+    20% {
+        transform: scale(1)
+    }
+    50% {
+        transform: scale(0.3)
+    }
+    80% {
+        transform: scale(1)
+    }
+    100% {
+        transform: scale(1)
+    }
+}
+
+.ajax-loader {
+    position: relative;
+}
+
+.ajax-loader span {
+    display: block;
+    position: absolute;
+    width: calc(33% - 1px);
+    height: calc(33% - 1px);
+    top: 0;
+    left: 0;
+    animation: loader-box 1s infinite linear;
+    -webkit-animation: loader-box 1s infinite linear;
+}
+
+.ajax-loader .loader-column-1 {
+    left: 0;
+}
+
+.ajax-loader .loader-column-2 {
+    left: 33%;
+}
+
+.ajax-loader .loader-column-3 {
+    left: 66%;
+}
+
+.ajax-loader .loader-row-1 {
+    top: 0;
+}
+
+.ajax-loader .loader-row-2 {
+    top: 33%;
+}
+
+.ajax-loader .loader-row-3 {
+    top: 66%;
+}
+
+.ajax-loader span:nth-child(1) {
+    background-color: #e6261f;
+}
+
+.ajax-loader span:nth-child(2), span:nth-child(4) {
+    animation-delay: 0.15s;
+    -webkit-animation-delay: 0.15s;
+    background-color: #eb7532;
+}
+
+.ajax-loader span:nth-child(3), span:nth-child(5), span:nth-child(7) {
+    animation-delay: 0.3s;
+    -webkit-animation-delay: 0.3s;
+    background-color: #f7d038;
+}
+
+.ajax-loader span:nth-child(6), span:nth-child(8) {
+    animation-delay: 0.45s;
+    -webkit-animation-delay: 0.45s;
+    background-color: #a3e048;
+}
+
+.ajax-loader span:nth-child(9) {
+    animation-delay: 0.6s;
+    -webkit-animation-delay: 0.6s;
+    background-color: #49da9a;
+}

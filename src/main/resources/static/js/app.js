@@ -15,18 +15,26 @@ $(document).ready(function () {
     }
 
     var login = $("#login-data");
-    if(login){
+    if (login) {
         setTimeout(function () {
-            // noinspection JSUnusedGlobalSymbols
-            // noinspection SpellCheckingInspection
+            // noinspection JSUnusedGlobalSymbols, SpellCheckingInspection
             $.ajax({
                 url: "/user/fullname",
                 type: "GET",
                 dataType: "json",
+                beforeSend: function () {
+                    $('#name-loader').show();
+                },
+                complete: function () {
+                    $('#name-loader').hide();
+                },
                 success: function (data) {
                     /** @namespace data.last_name */
                     /** @namespace data.first_name */
-                    login.html('как ' + data.first_name + ' ' + data.last_name);
+
+                    if (data.id !== -1) {
+                        login.html('как ' + data.first_name + ' ' + data.last_name);
+                    }
                 },
                 error: function (error) {
                     console.error(error);
@@ -44,7 +52,7 @@ $(document).ready(function () {
 
     var slider = document.getElementById('zoom-slider');
     slider.oninput = function () {
-        console.log(this.value); //TODO resize canvas
+        zoomCanvas(this.value);
     };
 
     var canvas = document.getElementById('pixelwars-canvas');
@@ -80,6 +88,8 @@ $(document).ready(function () {
     app.canvasHeight = canvas.height;
 
     app.isDragging = false;
+
+    app.prevZoom = 1;
 
     function handleMouseDown() {
         app.isDragging = true;
@@ -128,6 +138,10 @@ $(document).ready(function () {
         url: "/canvas/getAllPixels",
         type: "GET",
         dataType: "json",
+        complete: function () {
+            $('#canvas-loader').hide();
+            $('#canvas-content').show();
+        },
         success: function (data) {
             console.log(data);
         },
@@ -157,6 +171,16 @@ function updateCanvasSize(canvas, content) {
     canvas.height = content.clientHeight;
 }
 
+function zoomCanvas(zoom) {
+    if (zoom !== app.prevZoom) {
+        console.log(zoom);
+
+        //TODO
+
+        app.prevZoom = zoom;
+    }
+}
+
 function onWheel(e) {
     e = e || window.event;
 
@@ -169,11 +193,11 @@ function onWheel(e) {
         slider.value = Math.max(+slider.value - 5, 1);
     }
 
-    //TODO resize canvas
+    zoomCanvas(slider.value);
 }
 
 function updatePixel(x, y, color) {
-    var pixel = {position: {x: x, y: y}, color: color}
+    var pixel = {position: {x: x, y: y}, color: color};
 
     $.ajax({
         url: "/canvas/updatePixel",
