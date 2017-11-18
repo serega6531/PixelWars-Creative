@@ -43,6 +43,12 @@ $(document).ready(function () {
         }, 300);
     }
 
+    var loadCanvas = queryDict.hasOwnProperty('load_canvas') ? queryDict['load_canvas'] === 'true' : true;
+    if (!loadCanvas) {
+        $('#canvas-loader').hide();
+        return;
+    }
+
     document.body.onresize = function () {
         var canvas = document.getElementById('pixelwars-canvas');
         var content = document.getElementById('content');
@@ -138,32 +144,49 @@ $(document).ready(function () {
         url: "/canvas/getAllPixels",
         type: "GET",
         dataType: "json",
+        timeout: 8000,
         complete: function () {
             $('#canvas-loader').hide();
             $('#canvas-content').show();
+
+            setInterval(function () {
+                // noinspection JSUnusedGlobalSymbols
+                $.ajax({
+                    url: "/canvas/getUpdates",
+                    type: "GET",
+                    dataType: "json",
+                    timeout: 8000,  //TODO проверить, что не пришло более раннее обновление после позднего
+                    success: function (data) {
+                        console.log(data);
+                    },
+                    error: function (xhr, status, text) {
+                        //TODO show error
+                        console.error(xhr);
+                    }
+                });
+            }, 1000);
         },
         success: function (data) {
             console.log(data);
         },
-        error: function (error) {
-            console.error(error);
+        error: function (xhr, status, text) {
+            if (!String.prototype.includes) {
+                String.prototype.includes = function () {
+                    'use strict';
+                    return String.prototype.indexOf.apply(this, arguments) !== -1;
+                };
+            }
+
+            var href = window.location.href;
+
+            href = (href.includes('?') ? href.substring(0, href.lastIndexOf('?')) : href) +
+                '?error=' + (text || "Network error") +
+                '&error_description=' + status + '&load_canvas=false';
+            window.location.href = href;
+
+            console.error(xhr);
         }
     });
-
-    setInterval(function () {
-        // noinspection JSUnusedGlobalSymbols
-        $.ajax({
-            url: "/canvas/getUpdates",
-            type: "GET",
-            dataType: "json",
-            success: function (data) {
-                console.log(data);
-            },
-            error: function (error) {
-                console.error(error);
-            }
-        });
-    }, 1000);
 });
 
 function updateCanvasSize(canvas, content) {

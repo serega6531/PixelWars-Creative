@@ -23,11 +23,11 @@
         <div id="error-box"></div>
 
         <div id="header-auth" th:switch="${session == null || session.vk_id == null}">
-            <form th:case="${true}" th:action="@{/auth/}">
+            <form th:case="${true}" action="/auth/">
                 <input type="submit" value="Войти"/>
             </form>
 
-            <form th:case="${false}" th:action="@{/auth/logout}">
+            <form th:case="${false}" action="/auth/logout">
                 <span id="login-row">
                     Вы залогинены <span id="login-data">под id [[${session.vk_id}]]</span>
                     <span class="ajax-loader" style="display: none" id="name-loader">
