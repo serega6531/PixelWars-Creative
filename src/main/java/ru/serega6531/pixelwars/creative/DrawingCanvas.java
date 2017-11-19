@@ -29,10 +29,10 @@ public class DrawingCanvas {
         this.repository = repository;
     }
 
-    public RestResponse updatePixel(Pixel pixel){
+    public RestResponse updatePixel(Pixel pixel) {
         PixelPosition position = pixel.getPosition();
 
-        if(position.getX() >= canvasSizeX || position.getY() >= canvasSizeY)
+        if (position.getX() >= canvasSizeX || position.getY() >= canvasSizeY)
             return RestResponse.ILLEGAL_COORDINATES;
 
         changes.put(position, pixel.getColor());
@@ -41,7 +41,7 @@ public class DrawingCanvas {
         return RestResponse.SUCCESS;
     }
 
-    public Map<PixelPosition, Integer> getAndClearUpdates(){
+    public Map<PixelPosition, Integer> getAndClearUpdates() {
         Map<PixelPosition, Integer> map = new HashMap<>(changes);
         changes.clear();
         return map;

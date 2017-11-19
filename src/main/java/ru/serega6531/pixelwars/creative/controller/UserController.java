@@ -33,40 +33,40 @@ public class UserController {
         this.repository = repository;
     }
 
-    void createUser(User user){
+    void createUser(User user) {
         repository.save(user);
     }
 
     @GetMapping("/user/get/{id}")
-    public User getUser(@PathVariable Integer id){
-        if(id == null)
+    public User getUser(@PathVariable Integer id) {
+        if (id == null)
             return null;
 
         return repository.findOne(id);
     }
 
-    User getUser(HttpSession session){
+    User getUser(HttpSession session) {
         return getUser((Integer) session.getAttribute("vk_id"));
     }
 
     @PostMapping("/user/ban/{id}")
-    public RestResponse banUser(@PathVariable int id, HttpSession session){
-        if(session.isNew()){
+    public RestResponse banUser(@PathVariable int id, HttpSession session) {
+        if (session.isNew()) {
             return RestResponse.UNAUTHORIZED;
         }
 
         User admin = getUser((Integer) session.getAttribute("vk_id"));
-        if(!admin.isAdmin()){
+        if (!admin.isAdmin()) {
             return RestResponse.INSUFFICIENT_PRIVILEGES;
         }
 
         User target = repository.findOne(id);
 
-        if(target == null){
+        if (target == null) {
             return RestResponse.USER_NOT_EXISTS;
         }
 
-        if(target.isAdmin()){
+        if (target.isAdmin()) {
             return RestResponse.CANNOT_BE_BANNED;
         }
 
@@ -76,19 +76,19 @@ public class UserController {
     }
 
     @PostMapping("/user/unban/{id}")
-    public RestResponse unbanUser(@PathVariable int id, HttpSession session){
-        if(session.isNew()){
+    public RestResponse unbanUser(@PathVariable int id, HttpSession session) {
+        if (session.isNew()) {
             return RestResponse.UNAUTHORIZED;
         }
 
         User admin = getUser((Integer) session.getAttribute("vk_id"));
-        if(!admin.isAdmin()){
+        if (!admin.isAdmin()) {
             return RestResponse.INSUFFICIENT_PRIVILEGES;
         }
 
         User target = repository.findOne(id);
 
-        if(target == null){
+        if (target == null) {
             return RestResponse.USER_NOT_EXISTS;
         }
 
@@ -119,7 +119,7 @@ public class UserController {
             JsonNode userNode = root.get("response").get(0);
             VKUser user = jsonMapper.treeToValue(userNode, VKUser.class);
 
-             connection.disconnect();
+            connection.disconnect();
 
             return user;
         } catch (IOException e) {

@@ -23,7 +23,8 @@ public class User implements Serializable {
         this.isBanned = false;
     }
 
-    protected User(){}
+    protected User() {
+    }
 
     public int getVkId() {
         return vkId;

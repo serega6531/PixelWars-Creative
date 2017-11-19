@@ -11,13 +11,13 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 public class PixelwarsCreativeApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(PixelwarsCreativeApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(PixelwarsCreativeApplication.class, args);
+    }
 
-	@Bean
-	public Logger logger(){
-		return LoggerFactory.getLogger(this.getClass());
-	}
+    @Bean
+    public Logger logger() {
+        return LoggerFactory.getLogger(this.getClass());
+    }
 
 }

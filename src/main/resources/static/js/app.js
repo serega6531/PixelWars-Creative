@@ -1,7 +1,11 @@
 "use strict";
 var app = {};
 
-$(document).ready(function () {
+if (typeof $ === 'undefined') {
+    throw new Error('JQuery not loaded!');
+}
+
+$(function () {
     var queryDict = {};
     decodeURI(location.search).substr(1).split("&").forEach(function (item) {
         var spl = item.split("=");
@@ -17,7 +21,7 @@ $(document).ready(function () {
     var login = $("#login-data");
     if (login) {
         setTimeout(function () {
-            // noinspection JSUnusedGlobalSymbols, SpellCheckingInspection
+            // noinspection SpellCheckingInspection
             $.ajax({
                 url: "/user/fullname",
                 type: "GET",
@@ -150,7 +154,6 @@ $(document).ready(function () {
             $('#canvas-content').show();
 
             setInterval(function () {
-                // noinspection JSUnusedGlobalSymbols
                 $.ajax({
                     url: "/canvas/getUpdates",
                     type: "GET",

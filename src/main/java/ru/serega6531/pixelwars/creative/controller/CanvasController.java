@@ -33,8 +33,8 @@ public class CanvasController {
     }
 
     @PostMapping("/canvas/updatePixel")
-    public RestResponse updatePixel(@RequestBody Pixel pixel, HttpSession session){
-        if(session.isNew()){
+    public RestResponse updatePixel(@RequestBody Pixel pixel, HttpSession session) {
+        if (session.isNew()) {
             return RestResponse.UNAUTHORIZED;
         }
 
@@ -43,7 +43,7 @@ public class CanvasController {
         }*/
 
         User user = userController.getUser(session);
-        if(user.isBanned()){
+        if (user.isBanned()) {
             return RestResponse.BANNED;
         }
 
@@ -51,13 +51,13 @@ public class CanvasController {
     }
 
     @GetMapping("/canvas/getAllPixels")
-    public PixelsResponse getAllPixels(){
+    public PixelsResponse getAllPixels() {
         return new PixelsResponse(canvas.getSizeX(), canvas.getSizeY(), repository.findAll());
     }
 
     @GetMapping("/canvas/getUpdates")
-    public PixelsResponse getUpdates(){
-        if(cachedChanges != null){
+    public PixelsResponse getUpdates() {
+        if (cachedChanges != null) {
             return cachedChanges;
         } else {
             return new PixelsResponse(canvas.getSizeX(), canvas.getSizeY(), Collections.emptyMap());
@@ -65,7 +65,7 @@ public class CanvasController {
     }
 
     @Scheduled(fixedRate = 1000L)
-    public void cacheUpdates(){
+    public void cacheUpdates() {
         cachedChanges = new PixelsResponse(canvas.getSizeX(), canvas.getSizeY(), canvas.getAndClearUpdates());
     }
 

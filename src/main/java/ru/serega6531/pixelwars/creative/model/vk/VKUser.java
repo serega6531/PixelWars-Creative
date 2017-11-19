@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class VKUser {
 
-    public static VKUser ANONYMOUS = new VKUser(-1, "Anonymous", "user");;
+    public static VKUser ANONYMOUS = new VKUser(-1, "Anonymous", "user");
 
     private int id;
     private String firstName;
