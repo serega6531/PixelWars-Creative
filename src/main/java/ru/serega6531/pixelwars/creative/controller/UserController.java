@@ -46,7 +46,13 @@ public class UserController {
     }
 
     User getUser(HttpSession session) {
-        return getUser((Integer) session.getAttribute("vk_id"));
+        Integer id = (Integer) session.getAttribute("vk_id");
+        User user = getUser(id);
+        if (user == null) {
+            user = new User(id);
+            createUser(user);
+        }
+        return user;
     }
 
     @PostMapping("/user/ban/{id}")
