@@ -2,6 +2,7 @@
 
 /**
  * Свойства app:
+ * authorized - вошел ли пользователь через вк
  * canvasOffsetX, canvasOffsetY - отступ канваса от краев страницы
  * canvasWidth, canvasHeight - размеры канваса в настоящих пикселях
  * isDragging - передвигает ли пользователь сейчас нарисованное на канвасе
@@ -31,8 +32,10 @@ $(function () {
         error.show();
     }
 
-    var login = $("#login-data");
+    var login = document.getElementById('login-data');
     if (login) {
+        app.authorized = true;
+
         setTimeout(function () {
             // noinspection SpellCheckingInspection
             $.ajax({
@@ -50,7 +53,7 @@ $(function () {
                     /** @namespace data.first_name */
 
                     if (data.id !== -1) {
-                        login.html('как {0} {1}'.f(data.first_name, data.last_name));
+                        login.innerHTML = 'как {0} {1}'.f(data.first_name, data.last_name);
                     }
                 },
                 error: function (error) {
@@ -58,6 +61,8 @@ $(function () {
                 }
             });
         }, 300);
+    } else {
+        app.authorized = false;
     }
 
     var loadCanvas = queryDict.hasOwnProperty('load_canvas') ? queryDict['load_canvas'] === 'true' : true;
@@ -130,9 +135,19 @@ $(function () {
             var offsetX = realX - (app.prevX || realX); // >0 = движение вправо
             var offsetY = realY - (app.prevY || realY); // >0 = движение вниз
 
-            console.log("x=" + offsetX + " y=" + offsetY);
+            if (app.canvasViewCornerX + offsetX + 0.9 * app.gamePixelsX * app.pixelsInGamePixel > 0 &&
+                app.canvasViewCornerX + offsetX + 0.1 * app.gamePixelsX * app.pixelsInGamePixel - app.canvasWidth < 0) {
 
-            //TODO
+                app.canvasViewCornerX += offsetX;
+            }
+
+            if (app.canvasViewCornerY + offsetY + 0.9 * app.gamePixelsY * app.pixelsInGamePixel > 0 &&
+                app.canvasViewCornerY + offsetY + 0.1 * app.gamePixelsY * app.pixelsInGamePixel - app.canvasHeight < 0) {
+
+                app.canvasViewCornerY += offsetY;
+            }
+
+            redrawImage();
         }
 
         app.prevX = realX;
@@ -203,6 +218,10 @@ $(function () {
                 }
             }
 
+            if(!app.authorized){
+                canvas.style.cursor = 'move';
+            }
+
             setInterval(function () {
                 // noinspection JSUnusedGlobalSymbols
                 $.ajax({
@@ -238,6 +257,32 @@ $(function () {
             console.error(xhr);
         }
     });
+
+    function redrawImage() {
+        ctx.clearRect(0, 0, app.canvasWidth, app.canvasHeight);
+        ctx.strokeRect(app.canvasViewCornerX, app.canvasViewCornerY,
+            app.gamePixelsX * app.pixelsInGamePixel, app.gamePixelsY * app.pixelsInGamePixel);
+
+        var pixels = app.pixels;
+        for (var pos in pixels) {
+            if (pixels.hasOwnProperty(pos)) {
+                var hexColor = pixels[pos];
+
+                var posX = pos / app.gamePixelsX;
+                var posY = pos % app.gamePixelsX;
+
+                var canvasPosX = app.canvasViewCornerX + posX * app.pixelsInGamePixel;
+                var canvasPosY = app.canvasViewCornerY + posY * app.pixelsInGamePixel;
+
+                if (canvasPosX + app.pixelsInGamePixel >= 0 && canvasPosX <= app.canvasWidth &&
+                    canvasPosY + app.pixelsInGamePixel >= 0 && canvasPosY <= app.canvasHeight) {
+
+                    ctx.fillStyle = hexColor;
+                    ctx.fillRect(canvasPosX, canvasPosY, app.pixelsInGamePixel, app.pixelsInGamePixel);
+                }
+            }
+        }
+    }
 
     function updateCanvasSize(canvas, content) {
         canvas.width = content.clientWidth;
