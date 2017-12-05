@@ -2,6 +2,7 @@
 
 /**
  * Свойства app:
+ * loaded - загружена ли информация о канвасе
  * authorized - вошел ли пользователь через вк
  * canvasOffsetX, canvasOffsetY - отступ канваса от краев страницы
  * canvasWidth, canvasHeight - размеры канваса в настоящих пикселях
@@ -76,6 +77,11 @@ $(function () {
         var content = document.getElementById('content');
 
         updateCanvasSize(canvas, content);
+
+        if(app.loaded){
+            updatePixelSize(app.prevZoom, app.canvasWidth, app.canvasHeight,
+                app.gamePixelsX, app.gamePixelsY)
+        }
     };
 
     var slider = document.getElementById('zoom-slider');
@@ -106,6 +112,8 @@ $(function () {
     var $canvas = $(canvas);
     var offset = $canvas.offset();
 
+    app.loaded = false;
+
     app.canvasOffsetX = offset.left;
     app.canvasOffsetY = offset.top;
     app.canvasWidth = canvas.width;
@@ -135,16 +143,20 @@ $(function () {
             var offsetX = realX - (app.prevX || realX); // >0 = движение вправо
             var offsetY = realY - (app.prevY || realY); // >0 = движение вниз
 
-            if (app.canvasViewCornerX + offsetX + 0.9 * app.gamePixelsX * app.pixelsInGamePixel > 0 &&
-                app.canvasViewCornerX + offsetX + 0.1 * app.gamePixelsX * app.pixelsInGamePixel - app.canvasWidth < 0) {
-
-                app.canvasViewCornerX += offsetX;
+            if(offsetX > 0){
+                app.canvasViewCornerX = Math.min(app.canvasViewCornerX + offsetX,
+                    app.canvasWidth - 0.1 * app.gamePixelsX * app.pixelsInGamePixel);
+            } else if(offsetX < 0){
+                app.canvasViewCornerX = Math.max(app.canvasViewCornerX + offsetX,
+                    -0.9 * app.gamePixelsX * app.pixelsInGamePixel);
             }
 
-            if (app.canvasViewCornerY + offsetY + 0.9 * app.gamePixelsY * app.pixelsInGamePixel > 0 &&
-                app.canvasViewCornerY + offsetY + 0.1 * app.gamePixelsY * app.pixelsInGamePixel - app.canvasHeight < 0) {
-
-                app.canvasViewCornerY += offsetY;
+            if(offsetY > 0){
+                app.canvasViewCornerY = Math.min(app.canvasViewCornerY + offsetY,
+                    app.canvasHeight - 0.1 * app.gamePixelsY * app.pixelsInGamePixel);
+            } else if(offsetY < 0){
+                app.canvasViewCornerY = Math.max(app.canvasViewCornerY + offsetY,
+                    -0.9 * app.gamePixelsY * app.pixelsInGamePixel);
             }
 
             redrawImage();
@@ -182,6 +194,7 @@ $(function () {
             /** @namespace data.sizeY */
             /** @namespace data.pixels */
 
+            app.loaded = true;
             app.gamePixelsX = data.sizeX;
             app.gamePixelsY = data.sizeY;
 
@@ -220,6 +233,8 @@ $(function () {
 
             if(!app.authorized){
                 canvas.style.cursor = 'move';
+            } else {
+                //TODO проверить откат рисования
             }
 
             setInterval(function () {
@@ -240,13 +255,6 @@ $(function () {
             }, 1000);
         },
         error: function (xhr, status, text) {
-            if (!String.prototype.includes) {
-                String.prototype.includes = function () {
-                    'use strict';
-                    return String.prototype.indexOf.apply(this, arguments) !== -1;
-                };
-            }
-
             var href = window.location.href;
 
             href = (href.includes('?') ? href.substring(0, href.lastIndexOf('?')) : href) +
@@ -287,22 +295,25 @@ $(function () {
     function updateCanvasSize(canvas, content) {
         canvas.width = content.clientWidth;
         canvas.height = content.clientHeight;
+
+        app.canvasWidth = content.clientWidth;
+        app.canvasHeight = content.clientHeight;
     }
 
     function zoomCanvas(zoom) {
         if (zoom !== app.prevZoom) {
-            console.log(zoom);
-
-            //TODO
-
             app.prevZoom = zoom;
+            updatePixelSize(zoom, app.canvasWidth, app.canvasHeight,
+                app.gamePixelsX, app.gamePixelsY);
+
+            redrawImage();
         }
     }
 
     function updatePixelSize(zoom, width, height, pixelsX, pixelsY) {
-        //TODO use zoom
-        var pixelMinX = width * 0.8 / pixelsX;
-        var pixelMinY = height * 0.8 / pixelsY;
+        var zoomCoef = 1 + zoom * 0.03;
+        var pixelMinX = zoomCoef * width * 0.8 / pixelsX;
+        var pixelMinY = zoomCoef * height * 0.8 / pixelsY;
 
         app.pixelsInGamePixel = Math.min(pixelMinX, pixelMinY);
     }
@@ -316,7 +327,7 @@ $(function () {
         if (delta < 0) {  // прокрутка вверх
             slider.value = Math.min(+slider.value + 5, 100);
         } else {  //прокрутка вниз
-            slider.value = Math.max(+slider.value - 5, 1);
+            slider.value = Math.max(+slider.value - 5, 0);
         }
 
         zoomCanvas(slider.value);
