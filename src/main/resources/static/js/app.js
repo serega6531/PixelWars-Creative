@@ -78,7 +78,7 @@ $(function () {
 
         updateCanvasSize(canvas, content);
 
-        if(app.loaded){
+        if (app.loaded) {
             updatePixelSize(app.prevZoom, app.canvasWidth, app.canvasHeight,
                 app.gamePixelsX, app.gamePixelsY)
         }
@@ -143,18 +143,18 @@ $(function () {
             var offsetX = realX - (app.prevX || realX); // >0 = движение вправо
             var offsetY = realY - (app.prevY || realY); // >0 = движение вниз
 
-            if(offsetX > 0){
+            if (offsetX > 0) {
                 app.canvasViewCornerX = Math.min(app.canvasViewCornerX + offsetX,
                     app.canvasWidth - 0.1 * app.gamePixelsX * app.pixelsInGamePixel);
-            } else if(offsetX < 0){
+            } else if (offsetX < 0) {
                 app.canvasViewCornerX = Math.max(app.canvasViewCornerX + offsetX,
                     -0.9 * app.gamePixelsX * app.pixelsInGamePixel);
             }
 
-            if(offsetY > 0){
+            if (offsetY > 0) {
                 app.canvasViewCornerY = Math.min(app.canvasViewCornerY + offsetY,
                     app.canvasHeight - 0.1 * app.gamePixelsY * app.pixelsInGamePixel);
-            } else if(offsetY < 0){
+            } else if (offsetY < 0) {
                 app.canvasViewCornerY = Math.max(app.canvasViewCornerY + offsetY,
                     -0.9 * app.gamePixelsY * app.pixelsInGamePixel);
             }
@@ -179,24 +179,41 @@ $(function () {
         handleMouseOut(e);
     });
 
-    $.ajax({
-        url: "/canvas/getAllPixels",
-        type: "GET",
-        dataType: "json",
-        timeout: 8000,
-        success: function (data) {
-            $('#canvas-loader').hide();
-            $('#canvas-content').show();
+    var sock = SockJS('/canvas');
 
-            console.log(data);
+    sock.onopen = function () {
+        console.log("Connected to socket");
+        sock.send('start');
+    };
 
+    sock.onerror = function (e) {
+       console.error(e.message);
+
+        var href = window.location.href;
+
+        href = (href.includes('?') ? href.substring(0, href.lastIndexOf('?')) : href) +
+            '?error=Connection error' +
+            '&error_description=' + e.message + '&load_canvas=false';
+        window.location.href = href;
+    };
+
+    sock.onmessage = function (e) {
+        var data = JSON.parse(e.data);
+        console.log(data);
+
+        if(data.hasOwnProperty('pixels')){   //all pixels
             /** @namespace data.sizeX */
             /** @namespace data.sizeY */
+            /** @namespace data.backgroundColor */
             /** @namespace data.pixels */
+
+            $('#canvas-loader').hide();
+            $('#canvas-content').show();
 
             app.loaded = true;
             app.gamePixelsX = data.sizeX;
             app.gamePixelsY = data.sizeY;
+            app.backgroundColor = '#' + data.backgroundColor.toString(16).padStart(6, '0');
 
             updatePixelSize(app.prevZoom, app.canvasWidth, app.canvasHeight,
                 app.gamePixelsX, app.gamePixelsY);
@@ -211,63 +228,29 @@ $(function () {
 
             for (var pos in pixels) {
                 if (pixels.hasOwnProperty(pos)) {
-                    var color = pixels[pos];
-
-                    var posX = pos / data.sizeX;
-                    var posY = pos % data.sizeX;
-
-                    var hexColor = '#' + color.toString(16).padStart(6, "0");
-                    app.pixels[pos] = hexColor;
-
-                    var canvasPosX = app.canvasViewCornerX + posX * app.pixelsInGamePixel;
-                    var canvasPosY = app.canvasViewCornerY + posY * app.pixelsInGamePixel;
-
-                    if (canvasPosX + app.pixelsInGamePixel >= 0 && canvasPosX <= app.canvasWidth &&
-                        canvasPosY + app.pixelsInGamePixel >= 0 && canvasPosY <= app.canvasHeight) {
-
-                        ctx.fillStyle = hexColor;
-                        ctx.fillRect(canvasPosX, canvasPosY, app.pixelsInGamePixel, app.pixelsInGamePixel);
-                    }
+                    app.pixels[pos] = '#' + pixels[pos].toString(16).padStart(6, '0');
                 }
             }
 
-            if(!app.authorized){
+            redrawImage();
+
+            if (!app.authorized) {
                 canvas.style.cursor = 'move';
             } else {
                 //TODO проверить откат рисования
             }
-
-            setInterval(function () {
-                // noinspection JSUnusedGlobalSymbols
-                $.ajax({
-                    url: "/canvas/getUpdates",
-                    type: "GET",
-                    dataType: "json",
-                    timeout: 8000,  //TODO проверить, что не пришло более раннее обновление после позднего
-                    success: function (data) {
-                        console.log(data);
-                    },
-                    error: function (xhr, status, text) {
-                        //TODO show error
-                        console.error(xhr);
-                    }
-                });
-            }, 1000);
-        },
-        error: function (xhr, status, text) {
-            var href = window.location.href;
-
-            href = (href.includes('?') ? href.substring(0, href.lastIndexOf('?')) : href) +
-                '?error=' + (text || "Network error") +
-                '&error_description=' + status + '&load_canvas=false';
-            window.location.href = href;
-
-            console.error(xhr);
+        } else {  // pixel update
+            //TODO
         }
-    });
+    };
 
     function redrawImage() {
         ctx.clearRect(0, 0, app.canvasWidth, app.canvasHeight);
+
+        ctx.fillStyle = app.backgroundColor;
+        ctx.fillRect(app.canvasViewCornerX, app.canvasViewCornerY,
+            app.gamePixelsX * app.pixelsInGamePixel, app.gamePixelsY * app.pixelsInGamePixel);
+
         ctx.strokeRect(app.canvasViewCornerX, app.canvasViewCornerY,
             app.gamePixelsX * app.pixelsInGamePixel, app.gamePixelsY * app.pixelsInGamePixel);
 

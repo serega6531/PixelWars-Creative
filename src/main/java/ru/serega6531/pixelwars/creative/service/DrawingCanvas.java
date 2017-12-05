@@ -1,17 +1,14 @@
-package ru.serega6531.pixelwars.creative;
+package ru.serega6531.pixelwars.creative.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import ru.serega6531.pixelwars.creative.model.Pixel;
 import ru.serega6531.pixelwars.creative.model.PixelPosition;
-import ru.serega6531.pixelwars.creative.model.response.RestResponse;
+import ru.serega6531.pixelwars.creative.model.response.JsonResponse;
 import ru.serega6531.pixelwars.creative.repository.CanvasRepository;
 
-import java.util.HashMap;
-import java.util.Map;
-
-@Component
+@Service
 public class DrawingCanvas {
 
     @Value("${drawing.canvas-size.x}")
@@ -20,31 +17,28 @@ public class DrawingCanvas {
     @Value("${drawing.canvas-size.y}")
     private int canvasSizeY;
 
-    private Map<PixelPosition, Integer> changes = new HashMap<>();
+    @Value("${drawing.background-color}")
+    private int backgroundColor;
 
     private final CanvasRepository repository;
+    private final PixelsSubscriptionService subscriptionService;
 
     @Autowired
-    public DrawingCanvas(CanvasRepository repository) {
+    public DrawingCanvas(CanvasRepository repository, PixelsSubscriptionService subscriptionService) {
         this.repository = repository;
+        this.subscriptionService = subscriptionService;
     }
 
-    public RestResponse updatePixel(Pixel pixel) {
+    public JsonResponse updatePixel(Pixel pixel) {
         PixelPosition position = pixel.getPosition();
 
         if (position.getX() >= canvasSizeX || position.getY() >= canvasSizeY)
-            return RestResponse.ILLEGAL_COORDINATES;
+            return JsonResponse.ILLEGAL_COORDINATES;
 
-        changes.put(position, pixel.getColor());
         repository.save(pixel);
+        subscriptionService.broadcastUpdatedPixel(pixel);
 
-        return RestResponse.SUCCESS;
-    }
-
-    public Map<PixelPosition, Integer> getAndClearUpdates() {
-        Map<PixelPosition, Integer> map = new HashMap<>(changes);
-        changes.clear();
-        return map;
+        return JsonResponse.SUCCESS;
     }
 
     public int getSizeX() {
@@ -53,5 +47,9 @@ public class DrawingCanvas {
 
     public int getSizeY() {
         return canvasSizeY;
+    }
+
+    public int getBackgroundColor() {
+        return backgroundColor;
     }
 }

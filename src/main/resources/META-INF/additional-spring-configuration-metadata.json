@@ -39,6 +39,11 @@
       "name": "drawing.canvas-size.y",
       "type": "java.lang.Integer",
       "description": "Vertical size of drawing canvas."
+    },
+    {
+      "name": "drawing.background-color",
+      "type": "java.lang.Integer",
+      "description": "Color to show when pixel is not colored yet."
     }
   ]
 }

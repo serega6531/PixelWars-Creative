@@ -7,15 +7,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class PixelsResponse {
+public class AllPixelsResponse {
 
     private int sizeX;
     private int sizeY;
+    private int backgroundColor;
     private Map<Integer, Integer> pixels;
 
-    public PixelsResponse(int sizeX, int sizeY, List<Pixel> pixelsList) {
+    public AllPixelsResponse(int sizeX, int sizeY, int backgroundColor, List<Pixel> pixelsList) {
         this.sizeX = sizeX;
         this.sizeY = sizeY;
+        this.backgroundColor = backgroundColor;
 
         pixels = pixelsList.stream()
                 .collect(Collectors.toMap(
@@ -23,9 +25,10 @@ public class PixelsResponse {
                         Pixel::getColor));
     }
 
-    public PixelsResponse(int sizeX, int sizeY, Map<PixelPosition, Integer> pixelsMap) {
+    public AllPixelsResponse(int sizeX, int sizeY, int backgroundColor, Map<PixelPosition, Integer> pixelsMap) {
         this.sizeX = sizeX;
         this.sizeY = sizeY;
+        this.backgroundColor = backgroundColor;
 
         pixels = pixelsMap.entrySet().stream()
                 .collect(Collectors.toMap(
@@ -43,5 +46,9 @@ public class PixelsResponse {
 
     public Map<Integer, Integer> getPixels() {
         return pixels;
+    }
+
+    public int getBackgroundColor() {
+        return backgroundColor;
     }
 }
