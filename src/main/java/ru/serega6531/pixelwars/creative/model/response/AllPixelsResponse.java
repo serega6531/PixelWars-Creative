@@ -1,7 +1,6 @@
 package ru.serega6531.pixelwars.creative.model.response;
 
 import ru.serega6531.pixelwars.creative.model.Pixel;
-import ru.serega6531.pixelwars.creative.model.PixelPosition;
 
 import java.util.List;
 import java.util.Map;
@@ -23,17 +22,6 @@ public class AllPixelsResponse {
                 .collect(Collectors.toMap(
                         pixel -> pixel.getPosition().getX() * sizeX + pixel.getPosition().getY(),
                         Pixel::getColor));
-    }
-
-    public AllPixelsResponse(int sizeX, int sizeY, int backgroundColor, Map<PixelPosition, Integer> pixelsMap) {
-        this.sizeX = sizeX;
-        this.sizeY = sizeY;
-        this.backgroundColor = backgroundColor;
-
-        pixels = pixelsMap.entrySet().stream()
-                .collect(Collectors.toMap(
-                        ent -> ent.getKey().getX() * sizeX + ent.getKey().getY(),
-                        Map.Entry::getValue));
     }
 
     public int getSizeX() {

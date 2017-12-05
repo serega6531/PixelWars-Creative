@@ -1,10 +1,8 @@
 String.prototype.f = function () {
     var args = arguments;
-    var result = this.replace(/{(\d+)}/g, function (m, n) {
+    return this.replace(/{(\d+)}/g, function (m, n) {
         return args[n] ? args[n] : m;
     });
-    console.log(result);
-    return result;
 };
 
 if (!String.prototype.repeat) {

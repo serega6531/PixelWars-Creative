@@ -33,12 +33,10 @@ public class CanvasWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        switch (message.getPayload()) {
-            case "start":
-                session.sendMessage(objectToTextMessage(new AllPixelsResponse(canvas.getSizeX(), canvas.getSizeY(),
-                        canvas.getBackgroundColor(), repository.findAll())));
-                subscriptionService.addSubscriber(session);
-                break;
+        if(message.getPayload().equals("start")){
+            session.sendMessage(objectToTextMessage(new AllPixelsResponse(canvas.getSizeX(), canvas.getSizeY(),
+                    canvas.getBackgroundColor(), repository.findAll())));
+            subscriptionService.addSubscriber(session);
         }
     }
 
