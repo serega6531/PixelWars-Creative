@@ -2,6 +2,7 @@ package ru.serega6531.pixelwars.creative.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,10 +27,12 @@ public class UserController {
     @Value("${vk.api-version}")
     private String vkApiVersion;
 
+    private final Logger logger;
     private final UserRepository repository;
 
     @Autowired
-    public UserController(UserRepository repository) {
+    public UserController(Logger logger, UserRepository repository) {
+        this.logger = logger;
         this.repository = repository;
     }
 
@@ -122,12 +125,16 @@ public class UserController {
 
             ObjectMapper jsonMapper = new ObjectMapper();
             JsonNode root = jsonMapper.readTree(reader);
-            JsonNode userNode = root.get("response").get(0);
-            VKUser user = jsonMapper.treeToValue(userNode, VKUser.class);
-
             connection.disconnect();
 
-            return user;
+            if(root.has("error")){
+                logger.error("Error while getting name for user {}: {}", id, root.toString());
+                return VKUser.ANONYMOUS;
+            }
+
+            JsonNode userNode = root.get("response").get(0);
+
+            return jsonMapper.treeToValue(userNode, VKUser.class);
         } catch (IOException e) {
             e.printStackTrace();
         }
