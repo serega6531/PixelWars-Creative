@@ -259,7 +259,7 @@ $(function () {
             if (pixels.hasOwnProperty(pos)) {
                 var hexColor = pixels[pos];
 
-                var posX = pos / app.gamePixelsX;
+                var posX = Math.floor(pos / app.gamePixelsX);
                 var posY = pos % app.gamePixelsX;
 
                 var canvasPosX = app.canvasViewCornerX + posX * app.pixelsInGamePixel;
