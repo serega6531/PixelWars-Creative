@@ -86,7 +86,12 @@ $(function () {
 
     var slider = document.getElementById('zoom-slider');
     slider.oninput = function () {
-        zoomCanvas(this.value);
+        var relativeCenterX = window.innerWidth / 2 - app.canvasViewCornerX;
+        var relativeCenterY = window.innerHeight / 2 - app.canvasViewCornerY;
+
+        zoomCanvas(this.value,
+            Math.floor(relativeCenterX / app.pixelsInGamePixel),
+            Math.floor(relativeCenterY / app.pixelsInGamePixel));
     };
 
     var canvas = document.getElementById('pixelwars-canvas');
@@ -105,6 +110,10 @@ $(function () {
         // noinspection JSUnresolvedFunction
         canvas.attachEvent("onmousewheel", onWheel);
     }
+
+    window.addEventListener('resize', function (e) {
+        redrawImage();
+    });
 
     var content = document.getElementById('content');
     updateCanvasSize(canvas, content);
@@ -187,7 +196,7 @@ $(function () {
     };
 
     sock.onerror = function (e) {
-       console.error(e.message);
+        console.error(e.message);
 
         var href = window.location.href;
 
@@ -201,7 +210,7 @@ $(function () {
         var data = JSON.parse(e.data);
         console.log(data);
 
-        if(data.hasOwnProperty('pixels')){   //all pixels
+        if (data.hasOwnProperty('pixels')) {   //all pixels
             /** @namespace data.sizeX */
             /** @namespace data.sizeY */
             /** @namespace data.backgroundColor */
@@ -283,13 +292,40 @@ $(function () {
         app.canvasHeight = content.clientHeight;
     }
 
-    function zoomCanvas(zoom) {
+    function zoomCanvas(zoom, targetX, targetY) {
         if (zoom !== app.prevZoom) {
             app.prevZoom = zoom;
+
+            var oldPIGP = app.pixelsInGamePixel;
             updatePixelSize(zoom, app.canvasWidth, app.canvasHeight,
                 app.gamePixelsX, app.gamePixelsY);
+            var newPIGP = app.pixelsInGamePixel;
+
+            var diffPIGP = newPIGP - oldPIGP;
+
+            applyNewCorner(
+                app.canvasViewCornerX - targetX * diffPIGP,
+                app.canvasViewCornerY - targetY * diffPIGP);
 
             redrawImage();
+        }
+    }
+
+    function applyNewCorner(newCornerX, newCornerY) {
+        if (newCornerX > app.canvasWidth - 0.1 * app.gamePixelsX * app.pixelsInGamePixel) {
+            app.canvasViewCornerX = app.canvasWidth - 0.1 * app.gamePixelsX * app.pixelsInGamePixel;
+        } else if (newCornerX < -0.9 * app.gamePixelsX * app.pixelsInGamePixel) {
+            app.canvasViewCornerX = -0.9 * app.gamePixelsX * app.pixelsInGamePixel;
+        } else {
+            app.canvasViewCornerX = newCornerX;
+        }
+
+        if (newCornerY > app.canvasHeight - 0.1 * app.gamePixelsY * app.pixelsInGamePixel) {
+            app.canvasViewCornerY = app.canvasHeight - 0.1 * app.gamePixelsY * app.pixelsInGamePixel;
+        } else if (newCornerY < -0.9 * app.gamePixelsY * app.pixelsInGamePixel) {
+            app.canvasViewCornerY = -0.9 * app.gamePixelsY * app.pixelsInGamePixel;
+        } else {
+            app.canvasViewCornerY = newCornerY;
         }
     }
 
@@ -313,7 +349,10 @@ $(function () {
             slider.value = Math.max(+slider.value - 5, 0);
         }
 
-        zoomCanvas(slider.value);
+        var x = Math.floor((e.clientX - app.canvasOffsetX) / app.pixelsInGamePixel);
+        var y = Math.floor((e.clientY - app.canvasOffsetY) / app.pixelsInGamePixel);
+
+        zoomCanvas(slider.value, x, y);
     }
 
     function updatePixel(x, y, color) {
