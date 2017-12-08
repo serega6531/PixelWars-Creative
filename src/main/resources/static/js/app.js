@@ -4,6 +4,7 @@
  * Свойства app:
  * loaded - загружена ли информация о канвасе
  * authorized - вошел ли пользователь через вк
+ * currentColor - выбранный цвет, отсчет начинается с 0
  * canvasOffsetX, canvasOffsetY - отступ канваса от краев страницы
  * canvasWidth, canvasHeight - размеры канваса в настоящих пикселях
  * isDragging - передвигает ли пользователь сейчас нарисованное на канвасе
@@ -123,6 +124,7 @@ $(function () {
     var $canvas = $(canvas);
 
     app.loaded = false;
+    app.currentColor = 0;
 
     var offset = $content.offset();
     app.canvasOffsetX = offset.left;
@@ -250,6 +252,19 @@ $(function () {
             } else {
                 //TODO проверить откат рисования
             }
+
+            $("#color-pick-box").on('click', '*', function (e) {
+                var clicked = e.currentTarget;
+                var color = clicked.attributes['data-color'].nodeValue;
+
+                $("#color-pick-box").children('*').each(function () {
+                    this.classList.remove('color-selected');
+                });
+
+                clicked.classList.add('color-selected');
+
+                app.currentColor = color;
+            });
         } else {  // pixel update
             //TODO
         }

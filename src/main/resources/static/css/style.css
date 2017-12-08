@@ -41,21 +41,21 @@ html, body {
     height: calc(100% - 42px);
 }
 
-#slider-box {
+#info {
     position: absolute;
     bottom: 5%;
     right: 5%;
-    opacity: 0.7;
+    opacity: 0.6;
     border: 1px solid gray;
+    padding: 6px;
 }
 
-#slider-box:hover {
+#info:hover {
     opacity: 1;
 }
 
 #slider-box span {
     display: inline-block;
-    margin: 3px;
     vertical-align: 5px;
 }
 
@@ -72,4 +72,53 @@ html, body {
     transform: translate(-50%, -50%);
     width: 100px;
     height: 100px;
+}
+
+#selection-info-box {
+
+}
+
+#color-pick-box {
+    padding-top: 2px;
+}
+
+.color-box {
+    display: inline-block;
+    width: 15px;
+    height:15px;
+    vertical-align: middle;
+    margin-left: 1px;
+    border: 1px solid black;
+}
+
+.color-box:hover:not(.color-selected) {
+    border: 1px solid blue;
+}
+
+.color-selected {
+    border: 2px solid blue;
+}
+
+.color-box:nth-child(1) {
+    background-color: red;
+}
+
+.color-box:nth-child(2) {
+    background-color: blue;
+}
+
+.color-box:nth-child(3) {
+    background-color: green;
+}
+
+.color-box:nth-child(4) {
+    background-color: yellow;
+}
+
+.color-box:nth-child(5) {
+    background-color: white;
+}
+
+.color-box:nth-child(6) {
+    background-color: black;
 }
