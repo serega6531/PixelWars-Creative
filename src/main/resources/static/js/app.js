@@ -116,13 +116,15 @@ $(function () {
     });
 
     var content = document.getElementById('content');
+    var $content = $(content);
+
     updateCanvasSize(canvas, content);
 
     var $canvas = $(canvas);
-    var offset = $canvas.offset();
 
     app.loaded = false;
 
+    var offset = $content.offset();
     app.canvasOffsetX = offset.left;
     app.canvasOffsetY = offset.top;
     app.canvasWidth = canvas.width;
@@ -349,8 +351,8 @@ $(function () {
             slider.value = Math.max(+slider.value - 5, 0);
         }
 
-        var x = Math.floor((e.clientX - app.canvasOffsetX) / app.pixelsInGamePixel);
-        var y = Math.floor((e.clientY - app.canvasOffsetY) / app.pixelsInGamePixel);
+        var x = Math.floor((e.clientX - app.canvasOffsetX - app.canvasViewCornerX) / app.pixelsInGamePixel);
+        var y = Math.floor((e.clientY - app.canvasOffsetY - app.canvasViewCornerY) / app.pixelsInGamePixel);
 
         zoomCanvas(slider.value, x, y);
     }
