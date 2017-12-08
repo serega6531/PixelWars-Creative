@@ -44,6 +44,11 @@
       "name": "drawing.background-color",
       "type": "java.lang.Integer",
       "description": "Color to show when pixel is not colored yet."
+    },
+    {
+      "name": "drawing.colors",
+      "type": "java.lang.String",
+      "description": "List of colors in integer form, delimited with comma."
     }
   ]
 }

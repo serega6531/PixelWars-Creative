@@ -5,6 +5,7 @@
  * loaded - загружена ли информация о канвасе
  * authorized - вошел ли пользователь через вк
  * currentColor - выбранный цвет, отсчет начинается с 0
+ * currentPixelX, currentPixelY - координаты выделенного пикселя, без выделения равны -1
  * canvasOffsetX, canvasOffsetY - отступ канваса от краев страницы
  * canvasWidth, canvasHeight - размеры канваса в настоящих пикселях
  * isDragging - передвигает ли пользователь сейчас нарисованное на канвасе
@@ -125,6 +126,8 @@ $(function () {
 
     app.loaded = false;
     app.currentColor = 0;
+    app.currentPixelX = -1;
+    app.currentPixelY = -1;
 
     var offset = $content.offset();
     app.canvasOffsetX = offset.left;
@@ -214,11 +217,13 @@ $(function () {
         var data = JSON.parse(e.data);
         console.log(data);
 
-        if (data.hasOwnProperty('pixels')) {   //all pixels
+        if (data.hasOwnProperty('pixels')) {   //initial
             /** @namespace data.sizeX */
             /** @namespace data.sizeY */
             /** @namespace data.backgroundColor */
             /** @namespace data.pixels */
+            /** @namespace data.colors */
+            /** @namespace data.colorsAmount */
 
             $('#canvas-loader').hide();
             $('#canvas-content').show();
@@ -226,7 +231,7 @@ $(function () {
             app.loaded = true;
             app.gamePixelsX = data.sizeX;
             app.gamePixelsY = data.sizeY;
-            app.backgroundColor = '#' + data.backgroundColor.toString(16).padStart(6, '0');
+            app.backgroundColor = intToHex(data.backgroundColor);
 
             updatePixelSize(app.prevZoom, app.canvasWidth, app.canvasHeight,
                 app.gamePixelsX, app.gamePixelsY);
@@ -241,7 +246,7 @@ $(function () {
 
             for (var pos in pixels) {
                 if (pixels.hasOwnProperty(pos)) {
-                    app.pixels[pos] = '#' + pixels[pos].toString(16).padStart(6, '0');
+                    app.pixels[pos] = intToHex(pixels[pos]);
                 }
             }
 
@@ -251,6 +256,25 @@ $(function () {
                 canvas.style.cursor = 'move';
             } else {
                 //TODO проверить откат рисования
+            }
+
+            var colors = data.colors;
+            var colorsAmount = data.colorsAmount;
+            var colorsBox = document.getElementById('color-pick-box');
+
+            for (var i = 0; i < colorsAmount; i++) {
+                var color = colors[i];
+
+                var colorBox = document.createElement('div');
+                colorBox.classList.add('color-box');
+                if (i === 0) {
+                    colorBox.classList.add('color-selected');
+                }
+
+                colorBox.setAttribute('data-color', i);
+                colorBox.style.backgroundColor = intToHex(color);
+
+                colorsBox.appendChild(colorBox);
             }
 
             $("#color-pick-box").on('click', '*', function (e) {
@@ -387,5 +411,9 @@ $(function () {
                 console.error(error);
             }
         });
+    }
+
+    function intToHex(i) {
+        return '#' + i.toString(16).padStart(6, '0');
     }
 });

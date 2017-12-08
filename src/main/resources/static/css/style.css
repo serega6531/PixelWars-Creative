@@ -87,7 +87,7 @@ html, body {
     width: 15px;
     height:15px;
     vertical-align: middle;
-    margin-left: 1px;
+    margin: 0 1px;
     border: 1px solid black;
 }
 
@@ -97,28 +97,4 @@ html, body {
 
 .color-selected {
     border: 2px solid blue;
-}
-
-.color-box:nth-child(1) {
-    background-color: red;
-}
-
-.color-box:nth-child(2) {
-    background-color: blue;
-}
-
-.color-box:nth-child(3) {
-    background-color: green;
-}
-
-.color-box:nth-child(4) {
-    background-color: yellow;
-}
-
-.color-box:nth-child(5) {
-    background-color: white;
-}
-
-.color-box:nth-child(6) {
-    background-color: black;
 }

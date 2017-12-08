@@ -8,7 +8,7 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-import ru.serega6531.pixelwars.creative.model.response.AllPixelsResponse;
+import ru.serega6531.pixelwars.creative.model.response.InitialResponse;
 import ru.serega6531.pixelwars.creative.repository.CanvasRepository;
 import ru.serega6531.pixelwars.creative.service.DrawingCanvas;
 import ru.serega6531.pixelwars.creative.service.PixelsSubscriptionService;
@@ -20,7 +20,6 @@ public class CanvasWebSocketHandler extends TextWebSocketHandler {
     private final CanvasRepository repository;
     private final ObjectMapper mapper;
     private final PixelsSubscriptionService subscriptionService;
-
 
     @Autowired
     public CanvasWebSocketHandler(DrawingCanvas canvas, CanvasRepository repository,
@@ -34,14 +33,14 @@ public class CanvasWebSocketHandler extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         if(message.getPayload().equals("start")){
-            session.sendMessage(objectToTextMessage(new AllPixelsResponse(canvas.getSizeX(), canvas.getSizeY(),
-                    canvas.getBackgroundColor(), repository.findAll())));
+            session.sendMessage(objectToTextMessage(new InitialResponse(canvas.getSizeX(), canvas.getSizeY(),
+                    canvas.getBackgroundColor(), repository.findAll(), canvas.getColors())));
             subscriptionService.addSubscriber(session);
         }
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         subscriptionService.removeSubscriber(session);
     }
 

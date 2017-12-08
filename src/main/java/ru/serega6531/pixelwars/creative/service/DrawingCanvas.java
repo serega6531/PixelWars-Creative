@@ -8,6 +8,8 @@ import ru.serega6531.pixelwars.creative.model.PixelPosition;
 import ru.serega6531.pixelwars.creative.model.response.JsonResponse;
 import ru.serega6531.pixelwars.creative.repository.CanvasRepository;
 
+import java.util.List;
+
 @Service
 public class DrawingCanvas {
 
@@ -19,6 +21,9 @@ public class DrawingCanvas {
 
     @Value("${drawing.background-color}")
     private int backgroundColor;
+
+    @Value("#{'${drawing.colors}'.split(',')}")
+    private List<Integer> colors;
 
     private final CanvasRepository repository;
     private final PixelsSubscriptionService subscriptionService;
@@ -51,5 +56,9 @@ public class DrawingCanvas {
 
     public int getBackgroundColor() {
         return backgroundColor;
+    }
+
+    public List<Integer> getColors() {
+        return colors;
     }
 }
