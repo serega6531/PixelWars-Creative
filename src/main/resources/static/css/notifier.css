@@ -1,0 +1,83 @@
+/*
+    Украдено у ВК
+ */
+
+#notifications-box {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 1001
+}
+
+.notification-wrap {
+    padding: 0 0 8px 10px;
+}
+
+.notification-wrap:last-child {
+    padding-bottom: 10px
+}
+
+.notification {
+    width: 320px;
+    color: #fff;
+    background: #36383b;
+    background: rgba(54,56,59,.96);
+    border-radius: 4px;
+    box-shadow: 0 2px 3px rgba(0,0,0,.2);
+    font-size: 12px;
+    cursor: pointer
+}
+
+.notification-head {
+    padding: 10px 12px 0
+}
+
+.notification-title {
+    font-weight: 700;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow: hidden;
+    color: inherit;
+    padding: 0;
+    margin: 0;
+    font-size: 12px;
+    border-bottom: 0
+}
+
+.notification-close {
+    float: right;
+    display: block;
+    padding: 12px;
+    margin: -10px -12px -11px 12px;
+    opacity: 0.65;
+    filter: alpha(opacity=65);
+    outline: none
+}
+
+.notification-close:hover {
+    opacity: 1;
+    -webkit-filter: none;
+    filter: none
+}
+
+.notification-close:before {
+    display: block;
+    height: 10px;
+    width: 10px
+}
+
+.notification-body {
+    padding: 11px 12px 12px
+}
+
+.notification-message {
+    overflow: hidden;
+    line-height: 16px
+}
+
+.notification-message {
+    color: #bfe2fe;
+    font-weight: 700;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale
+}

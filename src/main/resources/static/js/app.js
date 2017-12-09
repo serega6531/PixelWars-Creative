@@ -14,6 +14,7 @@
  * prevX, prevY - последние координаты указателя мыши при передвижении на канвасе
  * gamePixelsX, gamePixelsY - количество игроых пикселей для отрисовки
  * pixelsInGamePixel - количество настоящих пикселей на сторону одного игрового
+ * mouseDownTime - время последнего лкм по канвасу в мс
  */
 
 var app = {};
@@ -141,10 +142,15 @@ $(function () {
 
     function handleMouseDown() {
         app.isDragging = true;
+        app.mouseDownTime = new Date().getTime();
     }
 
     function handleMouseUp() {
         app.isDragging = false;
+        var time = new Date().getTime();
+        if (time - app.mouseDownTime < 100) {  // если был быстрый клик
+            //TODO select
+        }
     }
 
     function handleMouseOut() {
