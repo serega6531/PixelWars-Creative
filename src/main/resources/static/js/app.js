@@ -218,81 +218,99 @@ $(function () {
         console.log(data);
 
         if (data.hasOwnProperty('pixels')) {   //initial
-            /** @namespace data.sizeX */
-            /** @namespace data.sizeY */
-            /** @namespace data.backgroundColor */
-            /** @namespace data.pixels */
-            /** @namespace data.colors */
-            /** @namespace data.colorsAmount */
-
-            $('#canvas-loader').hide();
-            $('#canvas-content').show();
-
-            app.loaded = true;
-            app.gamePixelsX = data.sizeX;
-            app.gamePixelsY = data.sizeY;
-            app.backgroundColor = intToHex(data.backgroundColor);
-
-            updatePixelSize(app.prevZoom, app.canvasWidth, app.canvasHeight,
-                app.gamePixelsX, app.gamePixelsY);
-
-            app.canvasViewCornerX = Math.round((app.canvasWidth - app.pixelsInGamePixel * app.gamePixelsX) / 2);
-            app.canvasViewCornerY = Math.round((app.canvasHeight - app.pixelsInGamePixel * app.gamePixelsY) / 2);
-
-            ctx.strokeRect(app.canvasViewCornerX, app.canvasViewCornerY,
-                app.gamePixelsX * app.pixelsInGamePixel, app.gamePixelsY * app.pixelsInGamePixel);
-
-            var pixels = data.pixels;
-
-            for (var pos in pixels) {
-                if (pixels.hasOwnProperty(pos)) {
-                    app.pixels[pos] = intToHex(pixels[pos]);
-                }
-            }
-
-            redrawImage();
-
-            if (!app.authorized) {
-                canvas.style.cursor = 'move';
-            } else {
-                //TODO проверить откат рисования
-            }
-
-            var colors = data.colors;
-            var colorsAmount = data.colorsAmount;
-            var colorsBox = document.getElementById('color-pick-box');
-
-            for (var i = 0; i < colorsAmount; i++) {
-                var color = colors[i];
-
-                var colorBox = document.createElement('div');
-                colorBox.classList.add('color-box');
-                if (i === 0) {
-                    colorBox.classList.add('color-selected');
-                }
-
-                colorBox.setAttribute('data-color', i);
-                colorBox.style.backgroundColor = intToHex(color);
-
-                colorsBox.appendChild(colorBox);
-            }
-
-            $("#color-pick-box").on('click', '*', function (e) {
-                var clicked = e.currentTarget;
-                var color = clicked.attributes['data-color'].nodeValue;
-
-                $("#color-pick-box").children('*').each(function () {
-                    this.classList.remove('color-selected');
-                });
-
-                clicked.classList.add('color-selected');
-
-                app.currentColor = color;
-            });
+            handleInitialResponse(data);
         } else {  // pixel update
-            //TODO
+            handlePixelUpdate(data);
         }
     };
+
+    function handleInitialResponse(data) {
+        /** @namespace data.sizeX */
+        /** @namespace data.sizeY */
+        /** @namespace data.backgroundColor */
+        /** @namespace data.pixels */
+        /** @namespace data.colors */
+        /** @namespace data.colorsAmount */
+
+        $('#canvas-loader').hide();
+        $('#canvas-content').show();
+
+        app.loaded = true;
+        app.gamePixelsX = data.sizeX;
+        app.gamePixelsY = data.sizeY;
+        app.backgroundColor = intToHex(data.backgroundColor);
+
+        updatePixelSize(app.prevZoom, app.canvasWidth, app.canvasHeight,
+            app.gamePixelsX, app.gamePixelsY);
+
+        app.canvasViewCornerX = Math.round((app.canvasWidth - app.pixelsInGamePixel * app.gamePixelsX) / 2);
+        app.canvasViewCornerY = Math.round((app.canvasHeight - app.pixelsInGamePixel * app.gamePixelsY) / 2);
+
+        ctx.strokeRect(app.canvasViewCornerX, app.canvasViewCornerY,
+            app.gamePixelsX * app.pixelsInGamePixel, app.gamePixelsY * app.pixelsInGamePixel);
+
+        var pixels = data.pixels;
+
+        for (var pos in pixels) {
+            if (pixels.hasOwnProperty(pos)) {
+                app.pixels[pos] = intToHex(pixels[pos]);
+            }
+        }
+
+        redrawImage();
+
+        if (!app.authorized) {
+            canvas.style.cursor = 'move';
+        } else {
+            //TODO проверить откат рисования
+        }
+
+        var colors = data.colors;
+        var colorsAmount = data.colorsAmount;
+        var colorsBox = document.getElementById('color-pick-box');
+
+        for (var i = 0; i < colorsAmount; i++) {
+            var color = colors[i];
+
+            var colorBox = document.createElement('div');
+            colorBox.classList.add('color-box');
+            if (i === 0) {
+                colorBox.classList.add('color-selected');
+            }
+
+            colorBox.setAttribute('data-color', i);
+            colorBox.style.backgroundColor = intToHex(color);
+
+            colorsBox.appendChild(colorBox);
+        }
+
+        $("#color-pick-box").on('click', '*', function (e) {
+            var clicked = e.currentTarget;
+            var color = clicked.attributes['data-color'].nodeValue;
+
+            $("#color-pick-box").children('*').each(function () {
+                this.classList.remove('color-selected');
+            });
+
+            clicked.classList.add('color-selected');
+
+            app.currentColor = color;
+        });
+    }
+
+    function handlePixelUpdate(data) {
+        var pos = data.position;
+        var posX = pos.x;
+        var posY = pos.y;
+        var color = intToHex(data.color);
+
+        drawPixel(posX, posY, color);
+
+        if (Math.pow(app.currentPixelX - posX, 2) + Math.pow(app.currentPixelY - posY, 2) <= 2) {
+            // если обновлен соседний с выделением пиксель
+            drawSelectionFrame();
+        }
+    }
 
     function redrawImage() {
         ctx.clearRect(0, 0, app.canvasWidth, app.canvasHeight);
@@ -312,17 +330,25 @@ $(function () {
                 var posX = Math.floor(pos / app.gamePixelsX);
                 var posY = pos % app.gamePixelsX;
 
-                var canvasPosX = app.canvasViewCornerX + posX * app.pixelsInGamePixel;
-                var canvasPosY = app.canvasViewCornerY + posY * app.pixelsInGamePixel;
-
-                if (canvasPosX + app.pixelsInGamePixel >= 0 && canvasPosX <= app.canvasWidth &&
-                    canvasPosY + app.pixelsInGamePixel >= 0 && canvasPosY <= app.canvasHeight) {
-
-                    ctx.fillStyle = hexColor;
-                    ctx.fillRect(canvasPosX, canvasPosY, app.pixelsInGamePixel, app.pixelsInGamePixel);
-                }
+                drawPixel(posX, posY, hexColor);
             }
         }
+    }
+
+    function drawPixel(posX, posY, hexColor) {
+        var canvasPosX = app.canvasViewCornerX + posX * app.pixelsInGamePixel;
+        var canvasPosY = app.canvasViewCornerY + posY * app.pixelsInGamePixel;
+
+        if (canvasPosX + app.pixelsInGamePixel >= 0 && canvasPosX <= app.canvasWidth &&
+            canvasPosY + app.pixelsInGamePixel >= 0 && canvasPosY <= app.canvasHeight) {
+
+            ctx.fillStyle = hexColor;
+            ctx.fillRect(canvasPosX, canvasPosY, app.pixelsInGamePixel, app.pixelsInGamePixel);
+        }
+    }
+
+    function drawSelectionFrame() {
+        //TODO
     }
 
     function updateCanvasSize(canvas, content) {
