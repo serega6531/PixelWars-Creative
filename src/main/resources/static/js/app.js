@@ -5,6 +5,7 @@
  * loaded - загружена ли информация о канвасе
  * authorized - вошел ли пользователь через вк
  * currentColor - выбранный цвет, отсчет начинается с 0
+ * backgroundColor - hex цвета фона
  * currentPixelX, currentPixelY - координаты выделенного пикселя, без выделения равны -1
  * canvasOffsetX, canvasOffsetY - отступ канваса от краев страницы
  * canvasWidth, canvasHeight - размеры канваса в настоящих пикселях
@@ -14,7 +15,7 @@
  * prevX, prevY - последние координаты указателя мыши при передвижении на канвасе
  * gamePixelsX, gamePixelsY - количество игроых пикселей для отрисовки
  * pixelsInGamePixel - количество настоящих пикселей на сторону одного игрового
- * mouseDownTime - время последнего лкм по канвасу в мс
+ * mouseDownCanvasX, mouseDownCanvasY - положение верхнего левого игрового пикселя относительно канваса во время последнего mousedown по канвасу
  */
 
 var app = {};
@@ -142,14 +143,48 @@ $(function () {
 
     function handleMouseDown() {
         app.isDragging = true;
-        app.mouseDownTime = new Date().getTime();
+        app.mouseDownCanvasX = app.canvasViewCornerX;
+        app.mouseDownCanvasY = app.canvasViewCornerY;
     }
 
-    function handleMouseUp() {
+    function handleMouseUp(e) {
         app.isDragging = false;
-        var time = new Date().getTime();
-        if (time - app.mouseDownTime < 100) {  // если был быстрый клик
-            //TODO select
+        if (Math.abs(app.mouseDownCanvasX - app.canvasViewCornerX) / app.pixelsInGamePixel < 1 &&
+            Math.abs(app.mouseDownCanvasY - app.canvasViewCornerY) / app.pixelsInGamePixel < 1) {
+
+            var clickedX = Math.floor((e.clientX - app.canvasOffsetX - app.canvasViewCornerX) /
+                app.pixelsInGamePixel);
+            var clickedY = Math.floor((e.clientY - app.canvasOffsetY - app.canvasViewCornerY) /
+                app.pixelsInGamePixel);
+
+            if (clickedX < 0 || clickedX > app.gamePixelsX ||
+                clickedY < 0 || clickedY > app.gamePixelsY) {
+                return;
+            }
+
+            if (app.currentPixelX !== -1 && app.currentPixelY !== -1) {
+                var topLeftX = app.canvasViewCornerX +
+                    Math.max(app.currentPixelX - 1, 0) * app.pixelsInGamePixel;
+                var topLeftY = app.canvasViewCornerY +
+                    Math.max(app.currentPixelY - 1, 0) * app.pixelsInGamePixel;
+
+                ctx.clearRect(topLeftX, topLeftY, app.pixelsInGamePixel * 3, app.pixelsInGamePixel * 3);
+
+                for (var x = Math.max(app.currentPixelX - 1, 0);
+                     x <= Math.min(app.currentPixelX + 1, app.gamePixelsX); x++) {
+
+                    for (var y = Math.max(app.currentPixelY - 1, 0);
+                         y <= Math.min(app.currentPixelY + 1, app.gamePixelsY); y++) {
+
+                        var pos = x * app.gamePixelsX + y;
+                        drawPixel(x, y, app.pixels[pos]);
+                    }
+                }
+            }
+
+            app.currentPixelX = clickedX;
+            app.currentPixelY = clickedY;
+            drawSelectionFrame();
         }
     }
 
@@ -182,6 +217,7 @@ $(function () {
             }
 
             redrawImage();
+            drawSelectionFrame();
         }
 
         app.prevX = realX;
@@ -211,12 +247,7 @@ $(function () {
     sock.onerror = function (e) {
         console.error(e.message);
 
-        var href = window.location.href;
-
-        href = (href.includes('?') ? href.substring(0, href.lastIndexOf('?')) : href) +
-            '?error=Connection error' +
-            '&error_description=' + e.message + '&load_canvas=false';
-        window.location.href = href;
+        notifier.addNotification('Connection error', e.message, 0);
     };
 
     sock.onmessage = function (e) {
@@ -257,6 +288,12 @@ $(function () {
 
         var pixels = data.pixels;
 
+        for (var x = 0; x < app.gamePixelsX; x++) {
+            for (var y = 0; y < app.gamePixelsY; y++) {
+                app.pixels[x * app.gamePixelsX + y] = app.backgroundColor; //TODO check
+            }
+        }
+
         for (var pos in pixels) {
             if (pixels.hasOwnProperty(pos)) {
                 app.pixels[pos] = intToHex(pixels[pos]);
@@ -284,7 +321,7 @@ $(function () {
                 colorBox.classList.add('color-selected');
             }
 
-            colorBox.setAttribute('data-color', i);
+            colorBox.setAttribute('data-color', i.toString());
             colorBox.style.backgroundColor = intToHex(color);
 
             colorsBox.appendChild(colorBox);
@@ -354,7 +391,10 @@ $(function () {
     }
 
     function drawSelectionFrame() {
-        //TODO
+        var canvasPosX = app.canvasViewCornerX + app.currentPixelX * app.pixelsInGamePixel;
+        var canvasPosY = app.canvasViewCornerY + app.currentPixelY * app.pixelsInGamePixel;
+
+        ctx.strokeRect(canvasPosX, canvasPosY, app.pixelsInGamePixel, app.pixelsInGamePixel);
     }
 
     function updateCanvasSize(canvas, content) {
@@ -381,6 +421,7 @@ $(function () {
                 app.canvasViewCornerY - targetY * diffPIGP);
 
             redrawImage();
+            drawSelectionFrame();
         }
     }
 
@@ -441,6 +482,7 @@ $(function () {
             },
             error: function (error) {
                 console.error(error);
+                notifier.addNotification('Update error', error.message, 3000);
             }
         });
     }
