@@ -31,10 +31,14 @@ $(function () {
         queryDict[spl[0]] = spl[1]
     });
 
-    var error = $("#error-box");
     if (queryDict.hasOwnProperty('error') && queryDict.hasOwnProperty('error_description')) {
-        error.html('Ошибка {0}: {1}'.f(queryDict['error'], queryDict['error_description']));
-        error.show();
+        notifier.addNotification(queryDict['error'], queryDict['error_description'], 0);
+    }
+
+    var loadCanvas = queryDict.hasOwnProperty('load_canvas') ? queryDict['load_canvas'] === 'true' : true;
+    if (!loadCanvas) {
+        $('#canvas-loader').hide();
+        return;
     }
 
     var login = document.getElementById('login-data');
@@ -58,7 +62,7 @@ $(function () {
                     /** @namespace data.first_name */
 
                     if (data.id !== -1) {
-                        login.innerHTML = 'как {0} {1}'.f(data.first_name, data.last_name);
+                        login.innerText = 'как {0} {1}'.f(data.first_name, data.last_name);
                     }
                 },
                 error: function (error) {
@@ -68,12 +72,6 @@ $(function () {
         }, 300);
     } else {
         app.authorized = false;
-    }
-
-    var loadCanvas = queryDict.hasOwnProperty('load_canvas') ? queryDict['load_canvas'] === 'true' : true;
-    if (!loadCanvas) {
-        $('#canvas-loader').hide();
-        return;
     }
 
     document.body.onresize = function () {
@@ -115,7 +113,7 @@ $(function () {
         canvas.attachEvent("onmousewheel", onWheel);
     }
 
-    window.addEventListener('resize', function (e) {
+    window.addEventListener('resize', function () {
         redrawImage();
     });
 
@@ -163,28 +161,20 @@ $(function () {
             }
 
             if (app.currentPixelX !== -1 && app.currentPixelY !== -1) {
-                var topLeftX = app.canvasViewCornerX +
-                    Math.max(app.currentPixelX - 1, 0) * app.pixelsInGamePixel;
-                var topLeftY = app.canvasViewCornerY +
-                    Math.max(app.currentPixelY - 1, 0) * app.pixelsInGamePixel;
-
-                ctx.clearRect(topLeftX, topLeftY, app.pixelsInGamePixel * 3, app.pixelsInGamePixel * 3);
-
-                for (var x = Math.max(app.currentPixelX - 1, 0);
-                     x <= Math.min(app.currentPixelX + 1, app.gamePixelsX); x++) {
-
-                    for (var y = Math.max(app.currentPixelY - 1, 0);
-                         y <= Math.min(app.currentPixelY + 1, app.gamePixelsY); y++) {
-
-                        var pos = x * app.gamePixelsX + y;
-                        drawPixel(x, y, app.pixels[pos]);
-                    }
-                }
+                redrawImage();
             }
 
             app.currentPixelX = clickedX;
             app.currentPixelY = clickedY;
             drawSelectionFrame();
+
+            document.getElementById('selection-info-data').innerText =
+                '({0}, {1})'.f(clickedX, clickedY);
+
+            var updateButton = document.getElementById('update-pixel-button');
+            if(updateButton.disabled) {
+                updateButton.removeAttribute('disabled');
+            }
         }
     }
 
@@ -224,18 +214,12 @@ $(function () {
         app.prevY = realY;
     }
 
-    $canvas.mousedown(function (e) {
-        handleMouseDown(e);
-    });
-    $canvas.mousemove(function (e) {
-        handleMouseMove(e);
-    });
-    $canvas.mouseup(function (e) {
-        handleMouseUp(e);
-    });
-    $canvas.mouseout(function (e) {
-        handleMouseOut(e);
-    });
+    $canvas.mousedown(handleMouseDown);
+    $canvas.mousemove(handleMouseMove);
+    $canvas.mouseup(handleMouseUp);
+    $canvas.mouseout(handleMouseOut);
+
+    document.getElementById('update-pixel-button').disabled = true;
 
     var sock = SockJS('/canvas');
 
@@ -339,6 +323,10 @@ $(function () {
 
             app.currentColor = color;
         });
+
+        $("#update-pixel-button").click(function (e) {
+            //TODO update
+        });
     }
 
     function handlePixelUpdate(data) {
@@ -349,7 +337,7 @@ $(function () {
 
         drawPixel(posX, posY, color);
 
-        if (Math.pow(app.currentPixelX - posX, 2) + Math.pow(app.currentPixelY - posY, 2) <= 2) {
+        if (Math.abs(app.currentPixelX - posX) + Math.abs(app.currentPixelY - posY) <= 2) {
             // если обновлен соседний с выделением пиксель
             drawSelectionFrame();
         }
@@ -362,6 +350,7 @@ $(function () {
         ctx.fillRect(app.canvasViewCornerX, app.canvasViewCornerY,
             app.gamePixelsX * app.pixelsInGamePixel, app.gamePixelsY * app.pixelsInGamePixel);
 
+        ctx.lineWidth = 1;
         ctx.strokeRect(app.canvasViewCornerX, app.canvasViewCornerY,
             app.gamePixelsX * app.pixelsInGamePixel, app.gamePixelsY * app.pixelsInGamePixel);
 
@@ -391,6 +380,10 @@ $(function () {
     }
 
     function drawSelectionFrame() {
+        if(app.currentPixelX === -1 || app.currentPixelY === -1){
+            return;
+        }
+
         var canvasPosX = app.canvasViewCornerX + app.currentPixelX * app.pixelsInGamePixel;
         var canvasPosY = app.canvasViewCornerY + app.currentPixelY * app.pixelsInGamePixel;
 

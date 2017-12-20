@@ -4,15 +4,6 @@ html, body {
     overflow: hidden;
 }
 
-#error-box {
-    border: 1px solid;
-    margin: 0;
-    padding: 5px 3px 5px 8px;
-    color: #D8000C;
-    background: #FFBABA no-repeat 10px center;
-    display: none;
-}
-
 #header {
     overflow: hidden;
     background-color: rgb(255, 246, 209);
@@ -74,8 +65,8 @@ html, body {
     height: 100px;
 }
 
-#selection-info-box {
-
+#selection-info-data {
+    display: inline-block;
 }
 
 #color-pick-box {
@@ -97,4 +88,8 @@ html, body {
 
 .color-selected {
     border: 2px solid blue;
+}
+
+#update-pixel-box {
+    margin-top: 2px;
 }

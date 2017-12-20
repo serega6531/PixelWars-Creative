@@ -1,7 +1,7 @@
 String.prototype.f = function () {
     var args = arguments;
     return this.replace(/{(\d+)}/g, function (m, n) {
-        return args[n] ? args[n] : m;
+        return typeof args[n] !== 'undefined' ? args[n] : m;
     });
 };
 

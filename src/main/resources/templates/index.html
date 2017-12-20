@@ -24,8 +24,6 @@
 
 <div id="header">
     <div id="header-content">
-        <div id="error-box"></div>
-
         <div id="header-auth" th:switch="${session == null || session.vk_id == null}">
             <form th:case="${true}" action="/auth/">
                 <input type="submit" value="Войти"/>
@@ -73,12 +71,15 @@
         <div id="info">
             <div id="slider-box">
                 <span>Приближение:</span>
-                <input type="range" min="0" max="100" value="1" id="zoom-slider" title="Приближение">
+                <input type="range" min="0" max="100" value="0" id="zoom-slider" title="Приближение">
             </div>
             <div id="selection-info-box">
-                Выделенный пиксель: (0, 0)
+                Выделенный пиксель: <div id="selection-info-data">нет</div>
             </div>
             <div id="color-pick-box"><!-- to be filled on init --></div>
+            <div id="update-pixel-box">
+                <button id="update-pixel-button" type="button">Отправить</button>
+            </div>
         </div>
     </div>
 </div>
