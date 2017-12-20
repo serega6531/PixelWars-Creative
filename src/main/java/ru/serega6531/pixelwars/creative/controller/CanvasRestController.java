@@ -10,6 +10,7 @@ import ru.serega6531.pixelwars.creative.model.response.JsonResponse;
 import ru.serega6531.pixelwars.creative.service.DrawingCanvas;
 
 import javax.servlet.http.HttpSession;
+import java.util.Date;
 
 @RestController
 public class CanvasRestController {
@@ -34,7 +35,14 @@ public class CanvasRestController {
             return JsonResponse.BANNED;
         }
 
-        return canvas.updatePixel(pixel);
+        JsonResponse response = canvas.updatePixel(pixel);
+
+        if(response.isSuccess()){
+            user.setLastDraw(new Date());
+            userController.saveUser(user);
+        }
+
+        return response;
     }
 
 }

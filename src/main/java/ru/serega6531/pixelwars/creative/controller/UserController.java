@@ -36,7 +36,7 @@ public class UserController {
         this.repository = repository;
     }
 
-    void createUser(User user) {
+    void saveUser(User user) {
         repository.save(user);
     }
 
@@ -53,7 +53,7 @@ public class UserController {
         User user = getUser(id);
         if (user == null) {
             user = new User(id);
-            createUser(user);
+            saveUser(user);
         }
         return user;
     }

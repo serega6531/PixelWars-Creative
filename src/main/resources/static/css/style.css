@@ -71,6 +71,7 @@ html, body {
 
 #color-pick-box {
     padding-top: 2px;
+    display: none;
 }
 
 .color-box {
@@ -92,4 +93,5 @@ html, body {
 
 #update-pixel-box {
     margin-top: 2px;
+    display: none;
 }

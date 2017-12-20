@@ -84,7 +84,7 @@ public class AuthController {
                         }
                     } else {
                         user = new User(userId);
-                        userController.createUser(user);
+                        userController.saveUser(user);
                     }
 
                     session.setAttribute("vk_id", userId);

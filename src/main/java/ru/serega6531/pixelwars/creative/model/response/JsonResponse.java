@@ -8,12 +8,12 @@ public class JsonResponse {
     //BASIC RESPONSES
     public static final JsonResponse SUCCESS = new JsonResponse(true, "success");
     public static final JsonResponse UNAUTHORIZED = new JsonResponse(false, "unauthorized");
-    //public static final JsonResponse SESSION_OUTDATED = new JsonResponse(false, "session_outdated");
     public static final JsonResponse INSUFFICIENT_PRIVILEGES = new JsonResponse(false, "insufficient_privileges");
     public static final JsonResponse BANNED = new JsonResponse(false, "banned");
 
     //CANVAS RESPONSES
     public static final JsonResponse ILLEGAL_COORDINATES = new JsonResponse(false, "illegal_coordinates");
+    public static final JsonResponse ILLEGAL_COLOR = new JsonResponse(false, "illegal_color");
 
     //USER RESPONSES
     public static final JsonResponse USER_NOT_EXISTS = new JsonResponse(false, "user_not_exists");

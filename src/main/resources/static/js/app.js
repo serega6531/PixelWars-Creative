@@ -4,6 +4,7 @@
  * Свойства app:
  * loaded - загружена ли информация о канвасе
  * authorized - вошел ли пользователь через вк
+ * pixels - массив цветов пикселей, номер пикселя = x * pixelsX + y
  * currentColor - выбранный цвет, отсчет начинается с 0
  * backgroundColor - hex цвета фона
  * currentPixelX, currentPixelY - координаты выделенного пикселя, без выделения равны -1
@@ -172,7 +173,7 @@ $(function () {
                 '({0}, {1})'.f(clickedX, clickedY);
 
             var updateButton = document.getElementById('update-pixel-button');
-            if(updateButton.disabled) {
+            if (updateButton.disabled) {
                 updateButton.removeAttribute('disabled');
             }
         }
@@ -274,7 +275,7 @@ $(function () {
 
         for (var x = 0; x < app.gamePixelsX; x++) {
             for (var y = 0; y < app.gamePixelsY; y++) {
-                app.pixels[x * app.gamePixelsX + y] = app.backgroundColor; //TODO check
+                app.pixels[x * app.gamePixelsX + y] = app.backgroundColor;
             }
         }
 
@@ -292,41 +293,49 @@ $(function () {
             //TODO проверить откат рисования
         }
 
-        var colors = data.colors;
-        var colorsAmount = data.colorsAmount;
-        var colorsBox = document.getElementById('color-pick-box');
+        if(app.authorized) {
+            var colors = data.colors;
+            var colorsAmount = data.colorsAmount;
+            var colorsBox = document.getElementById('color-pick-box');
 
-        for (var i = 0; i < colorsAmount; i++) {
-            var color = colors[i];
+            for (var i = 0; i < colorsAmount; i++) {
+                var color = colors[i];
 
-            var colorBox = document.createElement('div');
-            colorBox.classList.add('color-box');
-            if (i === 0) {
-                colorBox.classList.add('color-selected');
+                var colorBox = document.createElement('div');
+                colorBox.classList.add('color-box');
+                if (i === 0) {
+                    colorBox.classList.add('color-selected');
+                }
+
+                colorBox.setAttribute('data-color', i.toString());
+                colorBox.style.backgroundColor = intToHex(color);
+
+                colorsBox.appendChild(colorBox);
             }
 
-            colorBox.setAttribute('data-color', i.toString());
-            colorBox.style.backgroundColor = intToHex(color);
+            var $colorBox = $("#color-pick-box");
 
-            colorsBox.appendChild(colorBox);
-        }
+            $colorBox.show();
 
-        $("#color-pick-box").on('click', '*', function (e) {
-            var clicked = e.currentTarget;
-            var color = clicked.attributes['data-color'].nodeValue;
+            $colorBox.on('click', '*', function (e) {
+                var clicked = e.currentTarget;
+                var color = clicked.attributes['data-color'].nodeValue;
 
-            $("#color-pick-box").children('*').each(function () {
-                this.classList.remove('color-selected');
+                $("#color-pick-box").children('*').each(function () {
+                    this.classList.remove('color-selected');
+                });
+
+                clicked.classList.add('color-selected');
+
+                app.currentColor = color;
             });
 
-            clicked.classList.add('color-selected');
+            $("#update-pixel-box").show();
 
-            app.currentColor = color;
-        });
-
-        $("#update-pixel-button").click(function (e) {
-            //TODO update
-        });
+            $("#update-pixel-button").click(function () {
+                updatePixel(app.currentPixelX, app.currentPixelY, app.currentColor);
+            });
+        }
     }
 
     function handlePixelUpdate(data) {
@@ -335,6 +344,7 @@ $(function () {
         var posY = pos.y;
         var color = intToHex(data.color);
 
+        app.pixels[posX * app.gamePixelsX + posY] = color;
         drawPixel(posX, posY, color);
 
         if (Math.abs(app.currentPixelX - posX) + Math.abs(app.currentPixelY - posY) <= 2) {
@@ -380,7 +390,7 @@ $(function () {
     }
 
     function drawSelectionFrame() {
-        if(app.currentPixelX === -1 || app.currentPixelY === -1){
+        if (app.currentPixelX === -1 || app.currentPixelY === -1) {
             return;
         }
 
@@ -473,9 +483,9 @@ $(function () {
             success: function (data) {
                 console.log(data);
             },
-            error: function (error) {
-                console.error(error);
-                notifier.addNotification('Update error', error.message, 3000);
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.error(errorThrown);
+                notifier.addNotification('Update error', errorThrown, 3000);
             }
         });
     }

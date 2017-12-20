@@ -40,6 +40,11 @@ public class DrawingCanvas {
         if (position.getX() >= canvasSizeX || position.getY() >= canvasSizeY)
             return JsonResponse.ILLEGAL_COORDINATES;
 
+        if(pixel.getColor() < 0 || pixel.getColor() >= colors.size()){
+            return JsonResponse.ILLEGAL_COLOR;
+        }
+
+        pixel.setColor(colors.get(pixel.getColor()));
         repository.save(pixel);
         subscriptionService.broadcastUpdatedPixel(pixel);
 
