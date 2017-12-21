@@ -9,6 +9,8 @@
  * backgroundColor - hex цвета фона
  * currentPixelX, currentPixelY - координаты выделенного пикселя, без выделения равны -1
  * canvasOffsetX, canvasOffsetY - отступ канваса от краев страницы
+ * lastDraw - Date последнего обновления пикселя
+ * cooldown - промежуток между обновлением пикселей в секундах
  * canvasWidth, canvasHeight - размеры канваса в настоящих пикселях
  * isDragging - передвигает ли пользователь сейчас нарисованное на канвасе
  * prevZoom - последнее заданное состояние приближения
@@ -71,6 +73,24 @@ $(function () {
                 }
             });
         }, 300);
+
+        $.ajax({
+            url: "/canvas/getCooldown",
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                if (data.success) {
+                    /** @namespace data.lastDraw */
+                    app.lastDraw = new Date(data.lastDraw);
+                } else {
+                    notifier.addNotification('Ajax error', data.reason, 3000);
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.error(errorThrown);
+                notifier.addNotification('Ajax error', errorThrown, 3000);
+            }
+        });
     } else {
         app.authorized = false;
     }
@@ -253,6 +273,7 @@ $(function () {
         /** @namespace data.pixels */
         /** @namespace data.colors */
         /** @namespace data.colorsAmount */
+        /** @namespace data.cooldown */
 
         $('#canvas-loader').hide();
         $('#canvas-content').show();
@@ -261,6 +282,7 @@ $(function () {
         app.gamePixelsX = data.sizeX;
         app.gamePixelsY = data.sizeY;
         app.backgroundColor = intToHex(data.backgroundColor);
+        app.cooldown = data.cooldown;
 
         updatePixelSize(app.prevZoom, app.canvasWidth, app.canvasHeight,
             app.gamePixelsX, app.gamePixelsY);
@@ -293,7 +315,7 @@ $(function () {
             //TODO проверить откат рисования
         }
 
-        if(app.authorized) {
+        if (app.authorized) {
             var colors = data.colors;
             var colorsAmount = data.colorsAmount;
             var colorsBox = document.getElementById('color-pick-box');
@@ -481,7 +503,12 @@ $(function () {
             data: JSON.stringify(pixel),
             contentType: "application/json",
             success: function (data) {
-                console.log(data);
+                if(data.success) {
+                    console.log(data);
+                    app.lastDraw = new Date();
+                } else {
+                    notifier.addNotification('Update error', data.reason, 3000);
+                }
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 console.error(errorThrown);

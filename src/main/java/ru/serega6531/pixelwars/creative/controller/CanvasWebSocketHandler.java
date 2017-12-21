@@ -3,6 +3,7 @@ package ru.serega6531.pixelwars.creative.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -21,6 +22,9 @@ public class CanvasWebSocketHandler extends TextWebSocketHandler {
     private final ObjectMapper mapper;
     private final PixelsSubscriptionService subscriptionService;
 
+    @Value("${drawing.cooldown}")
+    private int cooldown;
+
     @Autowired
     public CanvasWebSocketHandler(DrawingCanvas canvas, CanvasRepository repository,
                                   ObjectMapper mapper, PixelsSubscriptionService subscriptionService) {
@@ -34,7 +38,7 @@ public class CanvasWebSocketHandler extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         if(message.getPayload().equals("start")){
             session.sendMessage(objectToTextMessage(new InitialResponse(canvas.getSizeX(), canvas.getSizeY(),
-                    canvas.getBackgroundColor(), repository.findAll(), canvas.getColors())));
+                    canvas.getBackgroundColor(), repository.findAll(), canvas.getColors(), cooldown)));
             subscriptionService.addSubscriber(session);
         }
     }

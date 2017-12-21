@@ -6,7 +6,7 @@ public class JsonResponse {
     private String reason;
 
     //BASIC RESPONSES
-    public static final JsonResponse SUCCESS = new JsonResponse(true, "success");
+    public static final JsonResponse SUCCESS = new JsonResponse();
     public static final JsonResponse UNAUTHORIZED = new JsonResponse(false, "unauthorized");
     public static final JsonResponse INSUFFICIENT_PRIVILEGES = new JsonResponse(false, "insufficient_privileges");
     public static final JsonResponse BANNED = new JsonResponse(false, "banned");
@@ -14,6 +14,7 @@ public class JsonResponse {
     //CANVAS RESPONSES
     public static final JsonResponse ILLEGAL_COORDINATES = new JsonResponse(false, "illegal_coordinates");
     public static final JsonResponse ILLEGAL_COLOR = new JsonResponse(false, "illegal_color");
+    public static final JsonResponse ON_COOLDOWN = new JsonResponse(false, "on_cooldown");
 
     //USER RESPONSES
     public static final JsonResponse USER_NOT_EXISTS = new JsonResponse(false, "user_not_exists");
@@ -22,6 +23,10 @@ public class JsonResponse {
     private JsonResponse(boolean success, String reason) {
         this.success = success;
         this.reason = reason;
+    }
+
+    JsonResponse() {
+        this(true, "success");
     }
 
     public boolean isSuccess() {

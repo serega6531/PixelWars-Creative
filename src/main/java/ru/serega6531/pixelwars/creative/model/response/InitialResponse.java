@@ -17,10 +17,13 @@ public class InitialResponse {
     private int colorsAmount;
     private Map<Integer, Integer> colors = new HashMap<>();
 
-    public InitialResponse(int sizeX, int sizeY, int backgroundColor, List<Pixel> pixelsList, List<Integer> colors) {
+    private int cooldown;
+
+    public InitialResponse(int sizeX, int sizeY, int backgroundColor, List<Pixel> pixelsList, List<Integer> colors, int cooldown) {
         this.sizeX = sizeX;
         this.sizeY = sizeY;
         this.backgroundColor = backgroundColor;
+        this.cooldown = cooldown;
 
         pixels = pixelsList.stream()
                 .collect(Collectors.toMap(
@@ -55,5 +58,9 @@ public class InitialResponse {
 
     public int getBackgroundColor() {
         return backgroundColor;
+    }
+
+    public int getCooldown() {
+        return cooldown;
     }
 }

@@ -49,6 +49,11 @@
       "name": "drawing.colors",
       "type": "java.lang.String",
       "description": "List of colors in integer form, delimited with comma."
+    },
+    {
+      "name": "drawing.cooldown",
+      "type": "java.lang.Integer",
+      "description": "Delay between updating pixels for one user (in seconds)."
     }
   ]
 }
