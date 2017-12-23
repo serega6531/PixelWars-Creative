@@ -37,10 +37,11 @@ public class DrawingCanvas {
     public JsonResponse updatePixel(Pixel pixel) {
         PixelPosition position = pixel.getPosition();
 
-        if (position.getX() >= canvasSizeX || position.getY() >= canvasSizeY)
+        if (position.getX() < 0 || position.getY() < 0 ||
+                position.getX() >= canvasSizeX || position.getY() >= canvasSizeY)
             return JsonResponse.ILLEGAL_COORDINATES;
 
-        if(pixel.getColor() < 0 || pixel.getColor() >= colors.size()){
+        if (pixel.getColor() < 0 || pixel.getColor() >= colors.size()) {
             return JsonResponse.ILLEGAL_COLOR;
         }
 

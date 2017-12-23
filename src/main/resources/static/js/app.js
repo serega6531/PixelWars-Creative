@@ -73,24 +73,6 @@ $(function () {
                 }
             });
         }, 300);
-
-        $.ajax({
-            url: "/canvas/getCooldown",
-            type: "GET",
-            dataType: "json",
-            success: function (data) {
-                if (data.success) {
-                    /** @namespace data.lastDraw */
-                    app.lastDraw = new Date(data.lastDraw);
-                } else {
-                    notifier.addNotification('Ajax error', data.reason, 3000);
-                }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.error(errorThrown);
-                notifier.addNotification('Ajax error', errorThrown, 3000);
-            }
-        });
     } else {
         app.authorized = false;
     }
@@ -176,8 +158,8 @@ $(function () {
             var clickedY = Math.floor((e.clientY - app.canvasOffsetY - app.canvasViewCornerY) /
                 app.pixelsInGamePixel);
 
-            if (clickedX < 0 || clickedX > app.gamePixelsX ||
-                clickedY < 0 || clickedY > app.gamePixelsY) {
+            if (clickedX < 0 || clickedX >= app.gamePixelsX ||
+                clickedY < 0 || clickedY >= app.gamePixelsY) {
                 return;
             }
 
@@ -193,7 +175,9 @@ $(function () {
                 '({0}, {1})'.f(clickedX, clickedY);
 
             var updateButton = document.getElementById('update-pixel-button');
-            if (updateButton.disabled) {
+            if (updateButton.disabled && typeof app.lastDraw !== 'undefined' &&
+                app.lastDraw - new Date() > app.cooldown * 1000) {
+
                 updateButton.removeAttribute('disabled');
             }
         }
@@ -352,10 +336,32 @@ $(function () {
                 app.currentColor = color;
             });
 
-            $("#update-pixel-box").show();
+            $.ajax({
+                url: "/canvas/getCooldown",
+                type: "GET",
+                dataType: "json",
+                success: function (data) {
+                    if (data.success) {
+                        /** @namespace data.lastDraw */
+                        app.lastDraw = new Date(data.lastDraw);
+                        var now = new Date();
+                        if(app.lastDraw > now) {
+                            runButtonCooldown(new Date(+now + app.cooldown))
+                        }
 
-            $("#update-pixel-button").click(function () {
-                updatePixel(app.currentPixelX, app.currentPixelY, app.currentColor);
+                        $("#update-pixel-box").show();
+
+                        $("#update-pixel-button").click(function () {
+                            updatePixel(app.currentPixelX, app.currentPixelY, app.currentColor);
+                        });
+                    } else {
+                        notifier.addNotification('Ajax error', data.reason, 3000);
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.error(errorThrown);
+                    notifier.addNotification('Ajax error', errorThrown, 3000);
+                }
             });
         }
     }
@@ -515,6 +521,51 @@ $(function () {
                 notifier.addNotification('Update error', errorThrown, 3000);
             }
         });
+    }
+
+    function runButtonCooldown(endDate) {
+        var msDiff = endDate - Date.now();
+        var updateButton = document.getElementById('update-pixel-button');
+        var msUntilSecond = msDiff % 1000;
+        var seconds = Math.floor(msDiff / 1000);
+
+        var secondsLeft;
+        if (msUntilSecond > 0) {
+            secondsLeft = seconds + 1;
+        } else {
+            secondsLeft = seconds;
+        }
+
+        updateButton.innerText = secondsToTime(secondsLeft);
+        updateButton.disabled = true;
+
+        setTimeout(function () {
+            secondsLeft--;
+            updateButton.innerText = secondsToTime(secondsLeft);
+
+            var task = setInterval(function () {
+                secondsLeft--;
+
+                if (secondsLeft > 0) {
+                    updateButton.innerText = secondsToTime(secondsLeft);
+                } else {
+                    clearInterval(task);
+                    updateButton.removeAttribute('disabled');
+                    updateButton.innerText = 'Отправить';
+                }
+            }, 1000);
+        }, msUntilSecond);
+    }
+
+    function secondsToTime(seconds) {
+        var minutes = Math.floor(seconds / 60);
+        seconds = seconds % 60;
+
+        if(minutes > 0) {
+            return minutes + ":" + (seconds < 10 ? "0" + seconds : seconds);
+        } else {
+            return "" + seconds;
+        }
     }
 
     function intToHex(i) {

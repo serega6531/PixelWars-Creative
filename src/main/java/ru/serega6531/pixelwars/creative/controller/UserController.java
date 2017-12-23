@@ -60,7 +60,7 @@ public class UserController {
 
     @PostMapping("/user/ban/{id}")
     public JsonResponse banUser(@PathVariable int id, HttpSession session) {
-        if (session.isNew()) {
+        if (session.isNew() || !session.getAttributeNames().hasMoreElements()) {
             return JsonResponse.UNAUTHORIZED;
         }
 
@@ -86,7 +86,7 @@ public class UserController {
 
     @PostMapping("/user/unban/{id}")
     public JsonResponse unbanUser(@PathVariable int id, HttpSession session) {
-        if (session.isNew()) {
+        if (session.isNew() || !session.getAttributeNames().hasMoreElements()) {
             return JsonResponse.UNAUTHORIZED;
         }
 

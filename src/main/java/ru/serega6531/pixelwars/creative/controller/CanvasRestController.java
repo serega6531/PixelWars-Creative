@@ -33,7 +33,7 @@ public class CanvasRestController {
 
     @GetMapping("/canvas/getCooldown")
     public JsonResponse getCooldown(HttpSession session) {
-        if (session.isNew()) {
+        if (session.isNew() || !session.getAttributeNames().hasMoreElements()) {
             return JsonResponse.UNAUTHORIZED;
         }
 
@@ -43,7 +43,7 @@ public class CanvasRestController {
 
     @PostMapping("/canvas/updatePixel")
     public JsonResponse updatePixel(@RequestBody Pixel pixel, HttpSession session) {
-        if (session.isNew()) {
+        if (session.isNew() || !session.getAttributeNames().hasMoreElements()) {
             return JsonResponse.UNAUTHORIZED;
         }
 
