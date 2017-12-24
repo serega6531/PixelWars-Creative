@@ -64,6 +64,14 @@ public class DrawingCanvas {
         return backgroundColor;
     }
 
+    public List<Pixel> getPixels() {
+        return repository.findAll();
+    }
+
+    public Pixel getPixel(PixelPosition position) {
+        return repository.getOne(position);
+    }
+
     public List<Integer> getColors() {
         return colors;
     }

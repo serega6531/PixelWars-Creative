@@ -18,7 +18,6 @@ import ru.serega6531.pixelwars.creative.service.PixelsSubscriptionService;
 public class CanvasWebSocketHandler extends TextWebSocketHandler {
 
     private final DrawingCanvas canvas;
-    private final CanvasRepository repository;
     private final ObjectMapper mapper;
     private final PixelsSubscriptionService subscriptionService;
 
@@ -26,19 +25,18 @@ public class CanvasWebSocketHandler extends TextWebSocketHandler {
     private int cooldown;
 
     @Autowired
-    public CanvasWebSocketHandler(DrawingCanvas canvas, CanvasRepository repository,
-                                  ObjectMapper mapper, PixelsSubscriptionService subscriptionService) {
+    public CanvasWebSocketHandler(DrawingCanvas canvas, ObjectMapper mapper,
+                                  PixelsSubscriptionService subscriptionService) {
         this.canvas = canvas;
-        this.repository = repository;
         this.mapper = mapper;
         this.subscriptionService = subscriptionService;
     }
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        if(message.getPayload().equals("start")){
+        if (message.getPayload().equals("start")) {
             session.sendMessage(objectToTextMessage(new InitialResponse(canvas.getSizeX(), canvas.getSizeY(),
-                    canvas.getBackgroundColor(), repository.findAll(), canvas.getColors(), cooldown)));
+                    canvas.getBackgroundColor(), canvas.getPixels(), canvas.getColors(), cooldown)));
             subscriptionService.addSubscriber(session);
         }
     }
