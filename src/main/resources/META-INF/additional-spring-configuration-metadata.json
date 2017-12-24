@@ -53,7 +53,7 @@
     {
       "name": "drawing.cooldown",
       "type": "java.lang.Integer",
-      "description": "Delay between updating pixels for one user (in seconds)."
+      "description": "Delay between updating pixels for one user (in milliseconds)."
     }
   ]
 }

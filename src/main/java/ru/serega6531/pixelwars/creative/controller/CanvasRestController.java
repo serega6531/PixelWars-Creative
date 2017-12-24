@@ -53,8 +53,7 @@ public class CanvasRestController {
         }
 
         Date now = new Date();
-        if(TimeUnit.MILLISECONDS.toSeconds(
-                now.getTime() - user.getLastDraw().getTime()) < cooldown){
+        if(now.getTime() - user.getLastDraw().getTime() < cooldown){
             return JsonResponse.ON_COOLDOWN;
         }
 

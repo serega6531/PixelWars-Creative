@@ -176,7 +176,7 @@ $(function () {
 
             var updateButton = document.getElementById('update-pixel-button');
             if (updateButton.disabled && typeof app.lastDraw !== 'undefined' &&
-                app.lastDraw - new Date() > app.cooldown * 1000) {
+                new Date() - app.lastDraw > app.cooldown) {
 
                 updateButton.removeAttribute('disabled');
             }
@@ -266,7 +266,7 @@ $(function () {
         app.gamePixelsX = data.sizeX;
         app.gamePixelsY = data.sizeY;
         app.backgroundColor = intToHex(data.backgroundColor);
-        app.cooldown = data.cooldown;
+        app.cooldown = data.cooldown + 500;  // чтобы избежать проблем с задержкой сети
 
         updatePixelSize(app.prevZoom, app.canvasWidth, app.canvasHeight,
             app.gamePixelsX, app.gamePixelsY);
@@ -325,7 +325,7 @@ $(function () {
 
             $colorBox.on('click', '*', function (e) {
                 var clicked = e.currentTarget;
-                var color = clicked.attributes['data-color'].nodeValue;
+                var color = clicked.attributes['data-color'].value;
 
                 $("#color-pick-box").children('*').each(function () {
                     this.classList.remove('color-selected');
@@ -353,6 +353,10 @@ $(function () {
 
                         $("#update-pixel-button").click(function () {
                             updatePixel(app.currentPixelX, app.currentPixelY, app.currentColor);
+
+                            var updateButton = document.getElementById('update-pixel-button');
+                            updateButton.innerText = "...";
+                            updateButton.disabled = true;
                         });
                     } else {
                         notifier.addNotification('Ajax error', data.reason, 3000);
@@ -512,13 +516,23 @@ $(function () {
                 if(data.success) {
                     console.log(data);
                     app.lastDraw = new Date();
+
+                    runButtonCooldown(new Date(+new Date() + app.cooldown));
                 } else {
                     notifier.addNotification('Update error', data.reason, 3000);
+
+                    var updateButton = document.getElementById('update-pixel-button');
+                    updateButton.innerText = "Отправить";
+                    updateButton.removeAttribute('disabled');
                 }
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 console.error(errorThrown);
                 notifier.addNotification('Update error', errorThrown, 3000);
+
+                var updateButton = document.getElementById('update-pixel-button');
+                updateButton.innerText = "Отправить";
+                updateButton.removeAttribute('disabled');
             }
         });
     }
