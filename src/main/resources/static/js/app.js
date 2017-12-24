@@ -359,7 +359,7 @@ $(function () {
                             updateButton.disabled = true;
                         });
                     } else {
-                        notifier.addNotification('Ajax error', data.reason, 3000);
+                        notifier.addNotification('Ajax error', messages[data.reason], 3000);
                     }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
@@ -519,7 +519,7 @@ $(function () {
 
                     runButtonCooldown(new Date(+new Date() + app.cooldown));
                 } else {
-                    notifier.addNotification('Update error', data.reason, 3000);
+                    notifier.addNotification('Update error', messages[data.reason], 3000);
 
                     var updateButton = document.getElementById('update-pixel-button');
                     updateButton.innerText = "Отправить";
