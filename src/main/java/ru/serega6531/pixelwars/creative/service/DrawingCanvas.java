@@ -9,6 +9,7 @@ import ru.serega6531.pixelwars.creative.model.response.JsonResponse;
 import ru.serega6531.pixelwars.creative.repository.CanvasRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class DrawingCanvas {
@@ -69,7 +70,20 @@ public class DrawingCanvas {
     }
 
     public Pixel getPixel(PixelPosition position) {
-        return repository.getOne(position);
+        return Optional.ofNullable(repository.findOne(position))
+                .orElse(new Pixel(position, backgroundColor));
+    }
+
+    public JsonResponse deletePixel(PixelPosition position) {
+        if (position.getX() < 0 || position.getY() < 0 ||
+                position.getX() >= canvasSizeX || position.getY() >= canvasSizeY)
+            return JsonResponse.ILLEGAL_COORDINATES;
+
+        Pixel pixel = new Pixel(position, backgroundColor);
+        repository.save(pixel);
+        subscriptionService.broadcastUpdatedPixel(pixel);
+
+        return JsonResponse.SUCCESS;
     }
 
     public List<Integer> getColors() {

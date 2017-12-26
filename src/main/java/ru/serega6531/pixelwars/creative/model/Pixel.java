@@ -39,6 +39,6 @@ public class Pixel implements Serializable {
 
     @Override
     public String toString() {
-        return position.toString();
+        return position.toString() + " = " + color;
     }
 }
