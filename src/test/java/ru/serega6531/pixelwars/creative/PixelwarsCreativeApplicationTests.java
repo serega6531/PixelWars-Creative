@@ -26,12 +26,6 @@ public class PixelwarsCreativeApplicationTests {
 
     private final Random rand = new Random();
 
-    @Value("#{'${drawing.colors}'.split(',')}")
-    private List<Integer> colors;
-
-    @Value("${drawing.background-color}")
-    private int backgroundColor;
-
     @Test
     public void fillRandomPixels() {
         for(int x = 0; x < canvas.getSizeX(); x++){
@@ -50,7 +44,7 @@ public class PixelwarsCreativeApplicationTests {
         int x = rand.nextInt(canvas.getSizeX());
         int y = rand.nextInt(canvas.getSizeY());
         int colorNum = randomColorNum();
-        int color = colors.get(colorNum);
+        int color = canvas.getColors().get(colorNum);
 
         PixelPosition pos = new PixelPosition(x, y);
         JsonResponse response = canvas.updatePixel(new Pixel(pos, colorNum));
@@ -70,14 +64,14 @@ public class PixelwarsCreativeApplicationTests {
 
         for(int x = 0; x < canvas.getSizeX(); x++) {
             for (int y = 0; y < canvas.getSizeY(); y++) {
-                Assert.assertEquals(backgroundColor,
+                Assert.assertEquals(canvas.getBackgroundColor(),
                         canvas.getPixel(new PixelPosition(x, y)).getColor());
             }
         }
     }
 
     private int randomColorNum() {
-        return rand.nextInt(colors.size());
+        return rand.nextInt(canvas.getColors().size());
     }
 
 }
