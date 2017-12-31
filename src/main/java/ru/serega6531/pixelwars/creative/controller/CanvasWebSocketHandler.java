@@ -10,7 +10,6 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import ru.serega6531.pixelwars.creative.model.response.InitialResponse;
-import ru.serega6531.pixelwars.creative.repository.CanvasRepository;
 import ru.serega6531.pixelwars.creative.service.DrawingCanvas;
 import ru.serega6531.pixelwars.creative.service.PixelsSubscriptionService;
 

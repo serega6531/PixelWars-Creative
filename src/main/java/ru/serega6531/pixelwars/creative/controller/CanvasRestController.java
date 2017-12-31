@@ -11,24 +11,26 @@ import ru.serega6531.pixelwars.creative.model.User;
 import ru.serega6531.pixelwars.creative.model.response.CooldownResponse;
 import ru.serega6531.pixelwars.creative.model.response.JsonResponse;
 import ru.serega6531.pixelwars.creative.service.DrawingCanvas;
+import ru.serega6531.pixelwars.creative.service.DrawingLoggingService;
 
 import javax.servlet.http.HttpSession;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 @RestController
 public class CanvasRestController {
 
     private final DrawingCanvas canvas;
     private final UserController userController;
+    private final DrawingLoggingService loggingService;
 
     @Value("${drawing.cooldown}")
     private int cooldown;
 
     @Autowired
-    public CanvasRestController(DrawingCanvas canvas, UserController userController) {
+    public CanvasRestController(DrawingCanvas canvas, UserController userController, DrawingLoggingService loggingService) {
         this.canvas = canvas;
         this.userController = userController;
+        this.loggingService = loggingService;
     }
 
     @GetMapping("/canvas/getCooldown")
@@ -62,6 +64,8 @@ public class CanvasRestController {
         if(response.isSuccess()){
             user.setLastDraw(now);
             userController.saveUser(user);
+
+            loggingService.log(user, pixel);
         }
 
         return response;
