@@ -8,6 +8,6 @@ import java.util.Optional;
 
 public interface LogsRepository extends JpaRepository<LogRecord, Integer> {
 
-    Optional<LogRecord> findTopByOrderByPositionDesc(PixelPosition position);
+    Optional<LogRecord> findFirstByPositionEqualsOrderByDateDesc(PixelPosition position);
 
 }

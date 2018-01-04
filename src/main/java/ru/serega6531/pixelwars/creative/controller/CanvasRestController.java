@@ -63,6 +63,7 @@ public class CanvasRestController {
 
         if(response.isSuccess()){
             user.setLastDraw(now);
+            user.setUpdates(user.getUpdates() + 1);
             userController.saveUser(user);
 
             loggingService.log(user, pixel);

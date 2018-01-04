@@ -15,12 +15,14 @@ public class User implements Serializable {
     private Date lastDraw;
     private boolean isAdmin;
     private boolean isBanned;
+    private int updates;
 
     public User(int vkId) {
         this.vkId = vkId;
         this.lastDraw = new Date(0);
         this.isAdmin = false;
         this.isBanned = false;
+        this.updates = 0;
     }
 
     protected User() {
@@ -56,5 +58,13 @@ public class User implements Serializable {
 
     public void setBanned(boolean banned) {
         isBanned = banned;
+    }
+
+    public int getUpdates() {
+        return updates;
+    }
+
+    public void setUpdates(int updates) {
+        this.updates = updates;
     }
 }

@@ -32,7 +32,7 @@ public class DrawingLoggingService {
     }
 
     public Optional<LogRecord> getLastUpdate(PixelPosition position) {
-        return repository.findTopByOrderByPositionDesc(position);
+        return repository.findFirstByPositionEqualsOrderByDateDesc(position);
     }
 
 }

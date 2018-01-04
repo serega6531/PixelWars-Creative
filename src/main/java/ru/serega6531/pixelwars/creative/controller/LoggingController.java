@@ -9,8 +9,8 @@ import ru.serega6531.pixelwars.creative.model.LogRecord;
 import ru.serega6531.pixelwars.creative.model.PixelPosition;
 import ru.serega6531.pixelwars.creative.service.DrawingLoggingService;
 
+import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 public class LoggingController {
@@ -23,9 +23,12 @@ public class LoggingController {
         return loggingService.getLastUpdates(amount);
     }
 
+    //TODO check Optional return
     @GetMapping(value = "/logging/lastByPixel/")
-    public Optional<LogRecord> getLastPixelUpdate(@RequestParam int x, @RequestParam int y){
-        return loggingService.getLastUpdate(new PixelPosition(x, y));
+    public LogRecord getLastPixelUpdate(@RequestParam int x, @RequestParam int y){
+        return loggingService.getLastUpdate(new PixelPosition(x, y))
+                .orElse(new LogRecord(0, new PixelPosition(x, y),
+                        -1, new Date(0)));
     }
 
 }
